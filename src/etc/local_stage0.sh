@@ -13,7 +13,8 @@ TARG_DIR=$1
 PREFIX=$2
 RUSTLIBDIR=$3
 
-LIB_DIR=lib
+LIB_DIR=lib64
+LIB_DIR_I=lib
 LIB_PREFIX=lib
 
 OS=`uname -s`
@@ -49,12 +50,9 @@ if [ -z $TARG_DIR ]; then
     exit 1
 fi
 
+rm -rf ${TARG_DIR}/stage0/lib64
+mkdir -p ${TARG_DIR}/stage0/bin/
 cp ${PREFIX}/bin/rustc${BIN_SUF} ${TARG_DIR}/stage0/bin/
-cp ${PREFIX}/${LIB_DIR}/${RUSTLIBDIR}/${TARG_DIR}/${LIB_DIR}/* ${TARG_DIR}/stage0/${LIB_DIR}/
-cp ${PREFIX}/${LIB_DIR}/${LIB_PREFIX}extra*${LIB_SUF} ${TARG_DIR}/stage0/${LIB_DIR}/
-cp ${PREFIX}/${LIB_DIR}/${LIB_PREFIX}rust*${LIB_SUF} ${TARG_DIR}/stage0/${LIB_DIR}/
-cp ${PREFIX}/${LIB_DIR}/${LIB_PREFIX}std*${LIB_SUF} ${TARG_DIR}/stage0/${LIB_DIR}/
-cp ${PREFIX}/${LIB_DIR}/${LIB_PREFIX}syntax*${LIB_SUF} ${TARG_DIR}/stage0/${LIB_DIR}/
 
 # do not fail if one of the above fails, as all we need is a working rustc!
 exit 0

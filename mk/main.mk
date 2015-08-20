@@ -72,6 +72,10 @@ ifneq ($(wildcard $(subst $(SPACE),\$(SPACE),$(CFG_GIT_DIR))),)
     CFG_SHORT_VER_HASH = $(shell git --git-dir='$(CFG_GIT_DIR)' rev-parse --short=9 HEAD)
     CFG_VERSION += ($(CFG_SHORT_VER_HASH) $(CFG_VER_DATE))
 endif
+else
+ifneq ($(CFG_EXTRACTED_VERSION),)
+CFG_VERSION = $(CFG_EXTRACTED_VERSION)
+endif
 endif
 
 # Windows exe's need numeric versions - don't use anything but
@@ -590,6 +594,9 @@ all: $(ALL_TARGET_RULES) $(GENERATED) docs
 # pick everything between tags | remove first line | remove last line
 # | remove extra (?) line | strip leading `#` from lines
 SHOW_DOCS = $(Q)awk '/<$(1)>/,/<\/$(1)>/' $(S)/Makefile.in | sed '1d' | sed '$$d' | sed 's/^\# \?//'
+
+version:
+	@echo "VERSION: $(CFG_VERSION)"
 
 help:
 	$(call SHOW_DOCS,help)
