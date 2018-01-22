@@ -21,6 +21,7 @@ use syntax_pos::symbol::Symbol;
 use syntax::tokenstream::TokenTree;
 
 pub fn expand_syntax_ext<'cx>(cx: &'cx mut ExtCtxt,
+                              _path: &Option<::ast::Path>,
                               sp: Span,
                               tts: &[TokenTree])
                               -> Box<dyn base::MacResult + 'cx> {

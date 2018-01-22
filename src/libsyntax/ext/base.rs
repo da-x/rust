@@ -250,6 +250,7 @@ pub trait TTMacroExpander {
     fn expand<'cx>(
         &self,
         ecx: &'cx mut ExtCtxt,
+        path: &'cx Option<::ast::Path>,
         span: Span,
         input: TokenStream,
         def_span: Option<Span>,
@@ -257,16 +258,17 @@ pub trait TTMacroExpander {
 }
 
 pub type MacroExpanderFn =
-    for<'cx> fn(&'cx mut ExtCtxt, Span, &[tokenstream::TokenTree])
+    for<'cx> fn(&'cx mut ExtCtxt, &'cx Option<::ast::Path>, Span, &[tokenstream::TokenTree])
                 -> Box<dyn MacResult+'cx>;
 
 impl<F> TTMacroExpander for F
-    where F: for<'cx> Fn(&'cx mut ExtCtxt, Span, &[tokenstream::TokenTree])
+    where F: for<'cx> Fn(&'cx mut ExtCtxt, &'cx Option<::ast::Path>, Span, &[tokenstream::TokenTree])
     -> Box<dyn MacResult+'cx>
 {
     fn expand<'cx>(
         &self,
         ecx: &'cx mut ExtCtxt,
+        path: &'cx Option<::ast::Path>,
         span: Span,
         input: TokenStream,
         _def_span: Option<Span>,
@@ -291,7 +293,7 @@ impl<F> TTMacroExpander for F
 
         let input: Vec<_> =
             input.trees().map(|tt| AvoidInterpolatedIdents.fold_tt(tt)).collect();
-        (*self)(ecx, span, &input)
+        (*self)(ecx, path, span, &input)
     }
 }
 
