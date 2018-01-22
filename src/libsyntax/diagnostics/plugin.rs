@@ -54,6 +54,7 @@ fn with_registered_diagnostics<T, F>(f: F) -> T where
 }
 
 pub fn expand_diagnostic_used<'cx>(ecx: &'cx mut ExtCtxt,
+                                   _path: &'cx Option<::ast::Path>,
                                    span: Span,
                                    token_tree: &[TokenTree])
                                    -> Box<MacResult+'cx> {
@@ -87,6 +88,7 @@ pub fn expand_diagnostic_used<'cx>(ecx: &'cx mut ExtCtxt,
 }
 
 pub fn expand_register_diagnostic<'cx>(ecx: &'cx mut ExtCtxt,
+                                       _path: &'cx Option<::ast::Path>,
                                        span: Span,
                                        token_tree: &[TokenTree])
                                        -> Box<MacResult+'cx> {
@@ -157,6 +159,7 @@ pub fn expand_register_diagnostic<'cx>(ecx: &'cx mut ExtCtxt,
 }
 
 pub fn expand_build_diagnostic_array<'cx>(ecx: &'cx mut ExtCtxt,
+                                          _path: &'cx Option<::ast::Path>,
                                           span: Span,
                                           token_tree: &[TokenTree])
                                           -> Box<MacResult+'cx> {

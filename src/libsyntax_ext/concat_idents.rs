@@ -20,6 +20,7 @@ use syntax_pos::hygiene::SyntaxContext;
 use syntax::tokenstream::TokenTree;
 
 pub fn expand_syntax_ext<'cx>(cx: &'cx mut ExtCtxt,
+                              _path: &Option<::ast::Path>,
                               sp: Span,
                               tts: &[TokenTree])
                               -> Box<base::MacResult + 'cx> {
