@@ -29,6 +29,7 @@ pub struct ErrorInfo {
 pub type ErrorMap = BTreeMap<Name, ErrorInfo>;
 
 pub fn expand_diagnostic_used<'cx>(ecx: &'cx mut ExtCtxt<'_>,
+                                   _path: &'cx Option<ast::Path>,
                                    span: Span,
                                    token_tree: &[TokenTree])
                                    -> Box<dyn MacResult+'cx> {
@@ -64,6 +65,7 @@ pub fn expand_diagnostic_used<'cx>(ecx: &'cx mut ExtCtxt<'_>,
 }
 
 pub fn expand_register_diagnostic<'cx>(ecx: &'cx mut ExtCtxt<'_>,
+                                       _path: &'cx Option<ast::Path>,
                                        span: Span,
                                        token_tree: &[TokenTree])
                                        -> Box<dyn MacResult+'cx> {
@@ -123,6 +125,7 @@ pub fn expand_register_diagnostic<'cx>(ecx: &'cx mut ExtCtxt<'_>,
 }
 
 pub fn expand_build_diagnostic_array<'cx>(ecx: &'cx mut ExtCtxt<'_>,
+                                          _path: &'cx Option<ast::Path>,
                                           span: Span,
                                           token_tree: &[TokenTree])
                                           -> Box<dyn MacResult+'cx> {

@@ -3,8 +3,10 @@
 use syntax::ext::base::{self, *};
 use syntax_pos::Span;
 use syntax::tokenstream;
+use syntax::ast;
 
 pub fn expand_compile_error<'cx>(cx: &'cx mut ExtCtxt<'_>,
+                              _path: &Option<ast::Path>,
                               sp: Span,
                               tts: &[tokenstream::TokenTree])
                               -> Box<dyn base::MacResult + 'cx> {

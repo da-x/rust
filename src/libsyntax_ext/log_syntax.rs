@@ -1,9 +1,11 @@
 use syntax::ext::base;
 use syntax::print;
 use syntax::tokenstream;
+use syntax::ast;
 use syntax_pos;
 
 pub fn expand_syntax_ext<'cx>(_cx: &'cx mut base::ExtCtxt<'_>,
+                              _path: &Option<ast::Path>,
                               sp: syntax_pos::Span,
                               tts: &[tokenstream::TokenTree])
                               -> Box<dyn base::MacResult + 'cx> {

@@ -217,22 +217,24 @@ pub trait TTMacroExpander {
     fn expand<'cx>(
         &self,
         ecx: &'cx mut ExtCtxt<'_>,
+        path: &'cx Option<ast::Path>,
         span: Span,
         input: TokenStream,
     ) -> Box<dyn MacResult+'cx>;
 }
 
 pub type MacroExpanderFn =
-    for<'cx> fn(&'cx mut ExtCtxt<'_>, Span, &[tokenstream::TokenTree])
+    for<'cx> fn(&'cx mut ExtCtxt<'_>, &'cx Option<ast::Path>, Span, &[tokenstream::TokenTree])
                 -> Box<dyn MacResult+'cx>;
 
 impl<F> TTMacroExpander for F
-    where F: for<'cx> Fn(&'cx mut ExtCtxt<'_>, Span, &[tokenstream::TokenTree])
+    where F: for<'cx> Fn(&'cx mut ExtCtxt<'_>, &'cx Option<ast::Path>, Span, &[tokenstream::TokenTree])
     -> Box<dyn MacResult+'cx>
 {
     fn expand<'cx>(
         &self,
         ecx: &'cx mut ExtCtxt<'_>,
+        path: &'cx Option<ast::Path>,
         span: Span,
         input: TokenStream,
     ) -> Box<dyn MacResult+'cx> {
@@ -259,7 +261,7 @@ impl<F> TTMacroExpander for F
 
         let input: Vec<_> =
             input.trees().map(|mut tt| { AvoidInterpolatedIdents.visit_tt(&mut tt); tt }).collect();
-        (*self)(ecx, span, &input)
+        (*self)(ecx, path, span, &input)
     }
 }
 
@@ -648,7 +650,7 @@ impl SyntaxExtension {
     }
 
     pub fn dummy_bang(edition: Edition) -> SyntaxExtension {
-        fn expander<'cx>(_: &'cx mut ExtCtxt<'_>, span: Span, _: &[TokenTree])
+        fn expander<'cx>(_: &'cx mut ExtCtxt<'_>, _: &'cx Option<ast::Path>, span: Span, _: &[TokenTree])
                          -> Box<dyn MacResult + 'cx> {
             DummyResult::any(span)
         }

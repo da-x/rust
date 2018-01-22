@@ -66,6 +66,7 @@ pub fn register_builtin_macros(resolver: &mut dyn syntax::ext::base::Resolver, e
         concat_idents: concat_idents::expand_syntax_ext,
         concat: concat::expand_syntax_ext,
         env: env::expand_env,
+        function: source_util::expand_function,
         file: source_util::expand_file,
         format_args_nl: format::expand_format_args_nl,
         format_args: format::expand_format_args,

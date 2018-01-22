@@ -308,6 +308,7 @@ symbols! {
         from_method,
         from_ok,
         from_usize,
+        function,
         fundamental,
         future,
         Future,

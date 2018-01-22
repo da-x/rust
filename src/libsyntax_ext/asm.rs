@@ -42,6 +42,7 @@ impl State {
 const OPTIONS: &[Symbol] = &[sym::volatile, sym::alignstack, sym::intel];
 
 pub fn expand_asm<'cx>(cx: &'cx mut ExtCtxt<'_>,
+                       _path: &Option<ast::Path>,
                        sp: Span,
                        tts: &[tokenstream::TokenTree])
                        -> Box<dyn base::MacResult + 'cx> {

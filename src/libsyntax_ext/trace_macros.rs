@@ -2,8 +2,10 @@ use syntax::ext::base::{self, ExtCtxt};
 use syntax::symbol::kw;
 use syntax_pos::Span;
 use syntax::tokenstream::TokenTree;
+use syntax::ast;
 
 pub fn expand_trace_macros(cx: &mut ExtCtxt<'_>,
+                           _path: &Option<ast::Path>,
                            sp: Span,
                            tt: &[TokenTree])
                            -> Box<dyn base::MacResult + 'static> {

@@ -62,7 +62,7 @@ use syntax::ext::base::{ExtCtxt, MacResult, DummyResult, MacEager};
 use syntax_pos::Span;
 use rustc_plugin::Registry;
 
-fn expand_rn(cx: &mut ExtCtxt, sp: Span, args: &[TokenTree])
+fn expand_rn(cx: &mut ExtCtxt, path: &Path, sp: Span, args: &[TokenTree])
         -> Box<dyn MacResult + 'static> {
 
     static NUMERALS: &'static [(&'static str, usize)] = &[

@@ -13,6 +13,7 @@ use syntax_pos::Span;
 
 pub fn expand_cfg(
     cx: &mut ExtCtxt<'_>,
+    _path: &Option<ast::Path>,
     sp: Span,
     tts: &[tokenstream::TokenTree],
 ) -> Box<dyn base::MacResult + 'static> {

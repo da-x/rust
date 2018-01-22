@@ -812,6 +812,7 @@ fn expand_format_args_impl<'cx>(
 
 pub fn expand_format_args<'cx>(
     ecx: &'cx mut ExtCtxt<'_>,
+    _path: &'cx Option<ast::Path>,
     sp: Span,
     tts: &[tokenstream::TokenTree],
 ) -> Box<dyn base::MacResult + 'cx> {
@@ -820,6 +821,7 @@ pub fn expand_format_args<'cx>(
 
 pub fn expand_format_args_nl<'cx>(
     ecx: &'cx mut ExtCtxt<'_>,
+    _path: &'cx Option<ast::Path>,
     sp: Span,
     tts: &[tokenstream::TokenTree],
 ) -> Box<dyn base::MacResult + 'cx> {

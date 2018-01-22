@@ -20,6 +20,7 @@ use syntax::tokenstream;
 use smallvec::smallvec;
 
 pub fn expand_global_asm<'cx>(cx: &'cx mut ExtCtxt<'_>,
+                              _path: &Option<ast::Path>,
                               sp: Span,
                               tts: &[tokenstream::TokenTree]) -> Box<dyn base::MacResult + 'cx> {
     match parse_global_asm(cx, sp, tts) {
