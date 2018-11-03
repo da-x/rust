@@ -916,6 +916,7 @@ where
         lint_groups,
         llvm_passes,
         attributes,
+        whole_crate_transformations,
         ..
     } = registry;
 
@@ -1006,10 +1007,40 @@ where
         let mut ecx = ExtCtxt::new(&sess.parse_sess, cfg, &mut resolver);
         let err_count = ecx.parse_sess.span_diagnostic.err_count();
 
+        // Call special whole-crate AST mutation plugins
+        let krate = {
+            if whole_crate_transformations.len() > 0 {
+                let mut krate = krate;
+
+                for wct in &whole_crate_transformations {
+                    krate = wct.cb.transform_before_expansion(&mut ecx, krate);
+                }
+
+                krate
+            } else {
+                krate
+            }
+        };
+
         // Expand macros now!
         let krate = time(sess, "expand crate", || {
             ecx.monotonic_expander().expand_crate(krate)
         });
+
+        // Call special whole-crate AST mutation plugins
+        let krate = {
+            if whole_crate_transformations.len() > 0 {
+                let mut krate = krate;
+
+                for wct in &whole_crate_transformations {
+                    krate = wct.cb.transform_after_expansion(&mut ecx, krate);
+                }
+
+                krate
+            } else {
+                krate
+            }
+        };
 
         // The rest is error reporting
 

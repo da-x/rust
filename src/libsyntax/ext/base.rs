@@ -674,6 +674,19 @@ pub enum SyntaxExtension {
     }
 }
 
+pub trait WholeCrateTransformer {
+    fn transform_before_expansion(&self, _cx: &mut ExtCtxt, krate: ast::Crate) -> ast::Crate {
+        krate
+    }
+    fn transform_after_expansion(&self, _cx: &mut ExtCtxt, krate: ast::Crate) -> ast::Crate {
+        krate
+    }
+}
+
+pub struct WholeCrateTransformation {
+    pub cb: Box<dyn WholeCrateTransformer + sync::Sync + sync::Send>,
+}
+
 impl SyntaxExtension {
     /// Return which kind of macro calls this syntax extension.
     pub fn kind(&self) -> MacroKind {

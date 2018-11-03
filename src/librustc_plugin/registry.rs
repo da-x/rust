@@ -14,7 +14,8 @@ use rustc::lint::{EarlyLintPassObject, LateLintPassObject, LintId, Lint};
 use rustc::session::Session;
 use rustc::util::nodemap::FxHashMap;
 
-use syntax::ext::base::{SyntaxExtension, NamedSyntaxExtension, NormalTT, IdentTT};
+use syntax::ext::base::{SyntaxExtension, NamedSyntaxExtension,
+    WholeCrateTransformation, NormalTT, IdentTT};
 use syntax::ext::base::MacroExpanderFn;
 use syntax::ext::hygiene;
 use syntax::symbol::Symbol;
@@ -47,6 +48,9 @@ pub struct Registry<'a> {
     pub syntax_exts: Vec<NamedSyntaxExtension>,
 
     #[doc(hidden)]
+    pub whole_crate_transformations: Vec<WholeCrateTransformation>,
+
+    #[doc(hidden)]
     pub early_lint_passes: Vec<EarlyLintPassObject>,
 
     #[doc(hidden)]
@@ -74,6 +78,7 @@ impl<'a> Registry<'a> {
             syntax_exts: vec![],
             early_lint_passes: vec![],
             late_lint_passes: vec![],
+            whole_crate_transformations: vec![],
             lint_groups: FxHashMap::default(),
             llvm_passes: vec![],
             attributes: vec![],
@@ -169,6 +174,12 @@ impl<'a> Registry<'a> {
     pub fn register_late_lint_pass(&mut self, lint_pass: LateLintPassObject) {
         self.late_lint_passes.push(lint_pass);
     }
+
+    /// Register a compiler lint pass.
+    pub fn register_whole_crate_transformation(&mut self, wct_pass: WholeCrateTransformation) {
+        self.whole_crate_transformations.push(wct_pass);
+    }
+
     /// Register a lint group.
     pub fn register_lint_group(
         &mut self,
