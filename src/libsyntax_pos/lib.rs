@@ -313,6 +313,12 @@ impl Span {
         span.lo <= other.lo && other.hi <= span.hi
     }
 
+    pub fn proper_contains(self, other: Span) -> bool {
+        let span = self.data();
+        let other = other.data();
+        span.lo < other.lo && other.hi < span.hi
+    }
+
     /// Returns `true` if `self` touches `other`.
     pub fn overlaps(self, other: Span) -> bool {
         let span = self.data();

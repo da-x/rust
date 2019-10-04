@@ -19,7 +19,7 @@ use crate::Level::Error;
 use crate::snippet::{Annotation, AnnotationType, Line, MultilineAnnotation, StyledString, Style};
 use crate::styled_buffer::StyledBuffer;
 
-use rustc_data_structures::fx::FxHashMap;
+use rustc_data_structures::fx::{FxHashSet, FxHashMap};
 use rustc_data_structures::sync::Lrc;
 use std::borrow::Cow;
 use std::io::prelude::*;
@@ -28,6 +28,11 @@ use std::cmp::{min, Reverse};
 use std::path::Path;
 use termcolor::{StandardStream, ColorChoice, ColorSpec, BufferWriter, Ansi};
 use termcolor::{WriteColor, Color, Buffer};
+use unicode_width;
+use super::SpanContextResolver;
+use super::SpanContextKind;
+use super::SpanContext;
+use std::cell::RefCell;
 
 /// Describes the way the content of the `rendered` field of the json output is generated
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -122,6 +127,7 @@ impl Emitter for EmitterWriter {
         self.emit_messages_default(&db.level,
                                    &db.styled_message(),
                                    &db.code,
+                                   &db.handler.context_resolver,
                                    &primary_span,
                                    &children,
                                    &suggestions);
@@ -177,6 +183,7 @@ impl ColorConfig {
 pub struct EmitterWriter {
     dst: Destination,
     sm: Option<Lrc<SourceMapperDyn>>,
+    context_mentioned: FxHashSet<Span>,
     short_message: bool,
     teach: bool,
     ui_testing: bool,
@@ -199,6 +206,7 @@ impl EmitterWriter {
         EmitterWriter {
             dst,
             sm: source_map,
+            context_mentioned: FxHashSet::default(),
             short_message,
             teach,
             ui_testing: false,
@@ -215,6 +223,7 @@ impl EmitterWriter {
         EmitterWriter {
             dst: Raw(dst, colored),
             sm: source_map,
+            context_mentioned: FxHashSet::default(),
             short_message,
             teach,
             ui_testing: false,
@@ -898,6 +907,7 @@ impl EmitterWriter {
         msp: &MultiSpan,
         msg: &[(String, Style)],
         code: &Option<DiagnosticId>,
+        cr: &RefCell<Option<Box<dyn SpanContextResolver>>>,
         level: &Level,
         max_line_num_len: usize,
         is_secondary: bool,
@@ -941,7 +951,8 @@ impl EmitterWriter {
             }
         }
 
-        let mut annotated_files = FileWithAnnotatedLines::collect_annotations(msp, &self.sm);
+        let mut annotated_files = FileWithAnnotatedLines::collect_annotations(
+            msp, &self.sm, Some((cr, &mut self.context_mentioned)));
 
         // Make sure our primary file comes first
         let (primary_lo, sm) = if let (Some(sm), Some(ref primary_span)) =
@@ -985,6 +996,18 @@ impl EmitterWriter {
                                            sm.doctest_offset_line(&loc.file.name, loc.line),
                                            loc.col.0 + 1),
                                   Style::LineAndColumn);
+                    if let Some(ref primary_span) = msp.primary_span().as_ref() {
+                        if primary_span != &&syntax_pos::DUMMY_SP {
+                            if let &Some(ref rc) = &*cr.borrow() {
+                                let context = rc.span_to_context(**primary_span);
+                                if let Some(context) = context {
+                                    repr_styled_context(buffer_msg_line_offset,
+                                                        &mut buffer, context);
+                                }
+                            }
+                        }
+                    }
+
                     for _ in 0..max_line_num_len {
                         buffer.prepend(buffer_msg_line_offset, " ", Style::NoStyle);
                     }
@@ -1263,6 +1286,7 @@ impl EmitterWriter {
                              level: &Level,
                              message: &[(String, Style)],
                              code: &Option<DiagnosticId>,
+                             cr: &RefCell<Option<Box<dyn SpanContextResolver>>>,
                              span: &MultiSpan,
                              children: &[SubDiagnostic],
                              suggestions: &[CodeSuggestion]) {
@@ -1275,6 +1299,7 @@ impl EmitterWriter {
         match self.emit_message_default(span,
                                         message,
                                         code,
+                                        cr,
                                         level,
                                         max_line_num_len,
                                         false) {
@@ -1297,6 +1322,7 @@ impl EmitterWriter {
                             &span,
                             &child.styled_message(),
                             &None,
+                            cr,
                             &child.level,
                             max_line_num_len,
                             true,
@@ -1313,6 +1339,7 @@ impl EmitterWriter {
                                 &MultiSpan::new(),
                                 &[(sugg.msg.to_owned(), Style::HeaderMsg)],
                                 &None,
+                                cr,
                                 &Level::Help,
                                 max_line_num_len,
                                 true,
@@ -1354,12 +1381,13 @@ impl FileWithAnnotatedLines {
     /// This helps us quickly iterate over the whole message (including secondary file spans)
     pub fn collect_annotations(
         msp: &MultiSpan,
-        source_map: &Option<Lrc<SourceMapperDyn>>
+        source_map: &Option<Lrc<SourceMapperDyn>>,
+        cr_and_context: Option<(&RefCell<Option<Box<dyn SpanContextResolver>>>, &mut FxHashSet<Span>)>,
     ) -> Vec<FileWithAnnotatedLines> {
         fn add_annotation_to_file(file_vec: &mut Vec<FileWithAnnotatedLines>,
                                   file: Lrc<SourceFile>,
                                   line_index: usize,
-                                  ann: Annotation) {
+                                  anns: Vec<Annotation>) {
 
             for slot in file_vec.iter_mut() {
                 // Look through each of our files for the one we're adding to
@@ -1367,14 +1395,14 @@ impl FileWithAnnotatedLines {
                     // See if we already have a line for it
                     for line_slot in &mut slot.lines {
                         if line_slot.line_index == line_index {
-                            line_slot.annotations.push(ann);
+                            line_slot.annotations.extend(anns);
                             return;
                         }
                     }
                     // We don't have a line yet, create one
                     slot.lines.push(Line {
                         line_index,
-                        annotations: vec![ann],
+                        annotations: anns,
                     });
                     slot.lines.sort();
                     return;
@@ -1385,7 +1413,7 @@ impl FileWithAnnotatedLines {
                 file,
                 lines: vec![Line {
                                 line_index,
-                                annotations: vec![ann],
+                                annotations: anns,
                             }],
                 multiline_depth: 0,
             });
@@ -1395,6 +1423,27 @@ impl FileWithAnnotatedLines {
         let mut multiline_annotations = vec![];
 
         if let Some(ref sm) = source_map {
+            if let Some((cr, context_mentioned)) = cr_and_context {
+                if let Some(ref primary_span) = msp.primary_span().as_ref() {
+                    if primary_span != &&syntax_pos::DUMMY_SP {
+                        if let &Some(ref rc) = &*cr.borrow() {
+                            let context = rc.span_to_context(**primary_span);
+                            if let Some(context) = context {
+                                for (span, _) in context.path {
+                                    if context_mentioned.contains(&span) {
+                                        continue;
+                                    }
+
+                                    let pos = sm.lookup_char_pos(span.lo());
+                                    add_annotation_to_file(&mut output, pos.file, pos.line, vec![]);
+                                    context_mentioned.insert(span);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
             for span_label in msp.span_labels() {
                 if span_label.span.is_dummy() {
                     continue;
@@ -1438,7 +1487,7 @@ impl FileWithAnnotatedLines {
                 };
 
                 if !ann.is_multiline() {
-                    add_annotation_to_file(&mut output, lo.file, lo.line, ann);
+                    add_annotation_to_file(&mut output, lo.file, lo.line, vec![ann]);
                 }
             }
         }
@@ -1492,7 +1541,7 @@ impl FileWithAnnotatedLines {
                 //  | |      |
                 //  | |______foo
                 //  |        baz
-                add_annotation_to_file(&mut output, file.clone(), ann.line_start, ann.as_start());
+                add_annotation_to_file(&mut output, file.clone(), ann.line_start, vec![ann.as_start()]);
                 // 4 is the minimum vertical length of a multiline span when presented: two lines
                 // of code and two lines of underline. This is not true for the special case where
                 // the beginning doesn't have an underline, but the current logic seems to be
@@ -1500,17 +1549,17 @@ impl FileWithAnnotatedLines {
                 let middle = min(ann.line_start + 4, ann.line_end);
                 for line in ann.line_start + 1..middle {
                     // Every `|` that joins the beginning of the span (`___^`) to the end (`|__^`).
-                    add_annotation_to_file(&mut output, file.clone(), line, ann.as_line());
+                    add_annotation_to_file(&mut output, file.clone(), line, vec![ann.as_line()]);
                 }
                 if middle < ann.line_end - 1 {
                     for line in ann.line_end - 1..ann.line_end {
-                        add_annotation_to_file(&mut output, file.clone(), line, ann.as_line());
+                        add_annotation_to_file(&mut output, file.clone(), line, vec![ann.as_line()]);
                     }
                 }
             } else {
                 end_ann.annotation_type = AnnotationType::Singleline;
             }
-            add_annotation_to_file(&mut output, file, ann.line_end, end_ann);
+            add_annotation_to_file(&mut output, file, ann.line_end, vec![end_ann]);
         }
         for file_vec in output.iter_mut() {
             file_vec.multiline_depth = max_depth;
@@ -1565,6 +1614,27 @@ fn num_overlap(a_start: usize, a_end: usize, b_start: usize, b_end:usize, inclus
 }
 fn overlaps(a1: &Annotation, a2: &Annotation, padding: usize) -> bool {
     num_overlap(a1.start_col, a1.end_col + padding, a2.start_col, a2.end_col, false)
+}
+
+fn repr_styled_context(line_offset: usize, buffer: &mut StyledBuffer, context: SpanContext)
+{
+    let kind_str = match context.kind {
+        SpanContextKind::Enum => "enum",
+        SpanContextKind::Module => "mod",
+        SpanContextKind::Function => "fn",
+        SpanContextKind::Impl => "impl",
+        SpanContextKind::Method => "fn",
+        SpanContextKind::Struct => "struct",
+        SpanContextKind::Trait => "trait",
+        SpanContextKind::Union => "union",
+    };
+
+    buffer.append(line_offset, &format!("  in {}", kind_str), Style::NoStyle);
+
+    let string_path =
+        context.path.into_iter().map(|(_, s)| s).collect::<Vec<String>>().join("::");
+
+    buffer.append(line_offset, &format!(" {}", string_path), Style::HeaderMsg);
 }
 
 fn emit_to_destination(rendered_buffer: &[Vec<StyledString>],

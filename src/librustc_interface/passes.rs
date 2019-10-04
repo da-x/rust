@@ -726,6 +726,12 @@ pub fn prepare_outputs(
         sess
     );
 
+    // Let diagnostics access the AST for allowing to show function names in messages.
+    sess.diagnostic().set_ast(
+        Box::new(syntax::diagnostics::ast::ContextResolver::new(
+            Lrc::new(krate.clone())
+        )));
+
     let output_paths = generated_output_paths(
         sess,
         &outputs,

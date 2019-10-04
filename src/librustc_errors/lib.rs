@@ -21,7 +21,7 @@ use rustc_data_structures::fx::FxHashSet;
 use rustc_data_structures::stable_hasher::StableHasher;
 
 use std::borrow::Cow;
-use std::cell::Cell;
+use std::cell::{Cell, RefCell};
 use std::{error, fmt};
 use std::panic;
 use std::path::Path;
@@ -323,6 +323,9 @@ pub struct Handler {
     /// this handler. These hashes is used to avoid emitting the same error
     /// twice.
     emitted_diagnostics: Lock<FxHashSet<u128>>,
+
+    // Callback to the Span AST resolver
+    context_resolver: RefCell<Option<Box<dyn SpanContextResolver>>>,
 }
 
 fn default_track_diagnostic(_: &Diagnostic) {}
@@ -362,6 +365,32 @@ impl Drop for Handler {
             }
         }
     }
+}
+
+pub enum SpanContextKind {
+    Enum,
+    Function,
+    Impl,
+    Method,
+    Struct,
+    Trait,
+    Union,
+    Module,
+}
+
+pub struct SpanContext {
+    kind: SpanContextKind,
+    path: Vec<(Span, String)>,
+}
+
+impl SpanContext {
+    pub fn new(kind: SpanContextKind, path: Vec<(Span, String)>) -> Self {
+        Self { kind, path }
+    }
+}
+
+pub trait SpanContextResolver {
+    fn span_to_context(&self, sp: Span) -> Option<SpanContext>;
 }
 
 impl Handler {
@@ -413,7 +442,12 @@ impl Handler {
             taught_diagnostics: Default::default(),
             emitted_diagnostic_codes: Default::default(),
             emitted_diagnostics: Default::default(),
+            context_resolver: RefCell::new(None),
         }
+    }
+
+    pub fn set_ast(&self, scr: Box<dyn SpanContextResolver>) {
+        *self.context_resolver.borrow_mut() = Some(scr);
     }
 
     pub fn set_continue_after_error(&self, continue_after_error: bool) {

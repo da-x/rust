@@ -79,7 +79,8 @@ impl<'a>  DiagnosticConverter<'a> {
             };
             let annotated_files = FileWithAnnotatedLines::collect_annotations(
                 &self.msp,
-                &self.source_map
+                &self.source_map,
+                None,
             );
             let slices = self.slices_for_files(annotated_files, primary_lo);
 
