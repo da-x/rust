@@ -4,10 +4,11 @@ use crate::hir::map::{DefPathData, DisambiguatedDefPathData};
 use crate::hir::def_id::{CrateNum, DefId, CRATE_DEF_INDEX, LOCAL_CRATE};
 use crate::middle::cstore::{ExternCrate, ExternCrateSource};
 use crate::middle::region;
-use crate::ty::{self, DefIdTree, ParamConst, Ty, TyCtxt, TypeFoldable};
+use crate::ty::{self, ParamConst, Ty, TyCtxt, TypeFoldable};
 use crate::ty::subst::{GenericArg, Subst, GenericArgKind};
 use crate::ty::layout::{Integer, IntegerExt, Size};
 use crate::mir::interpret::{ConstValue, sign_extend, Scalar, truncate};
+use crate::session::TypeDiagnosticKind;
 
 use rustc_apfloat::ieee::{Double, Single};
 use rustc_apfloat::Float;
@@ -17,7 +18,7 @@ use syntax::attr::{SignedInt, UnsignedInt};
 use syntax::symbol::{kw, InternedString};
 
 use std::cell::Cell;
-use std::fmt::{self, Write as _};
+use std::fmt::{self, Write as _, Display, Formatter};
 use std::ops::{Deref, DerefMut};
 
 // `pretty` is a separate module only for organization.
@@ -46,9 +47,77 @@ macro_rules! define_scoped_cx {
     };
 }
 
+use rustc_data_structures::fx::FxHashMap;
+use std::cell::RefCell;
+use syntax::ast::Ident;
+
+pub enum PrintableUseTreeNode {
+    Leaf,
+    Tree(FxHashMap<Ident, PrintableUseTreeNode>),
+}
+
+impl PrintableUseTreeNode {
+    pub fn is_empty(&self) -> bool {
+        match self {
+            PrintableUseTreeNode::Leaf => true,
+            PrintableUseTreeNode::Tree(map) => map.is_empty(),
+        }
+    }
+}
+
+impl Default for PrintableUseTreeNode {
+    fn default() -> Self {
+        PrintableUseTreeNode::Tree(FxHashMap::default())
+    }
+}
+
+impl Display for PrintableUseTreeNode {
+    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+        match self {
+            PrintableUseTreeNode::Leaf => Ok(()),
+            PrintableUseTreeNode::Tree(map) => {
+                if map.len() > 1 {
+                    Display::fmt("{", f)?;
+                }
+                for (index, (ident, submap)) in map.iter().enumerate() {
+                    if index > 0 {
+                        Display::fmt(", ", f)?;
+                    }
+                    Display::fmt(ident, f)?;
+                    if let PrintableUseTreeNode::Tree(_) = submap {
+                         Display::fmt("::", f)?;
+                    }
+                    Display::fmt(submap, f)?;
+                }
+                if map.len() > 1 {
+                    Display::fmt("}", f)?;
+                }
+                Ok(())
+            }
+        }
+    }
+}
+
+#[derive(Default)]
+pub struct TypingContextTLS {
+    pub usage: Option<(DefId, syntax::ast::NodeId)>,
+    pub legend: FxHashMap<Ident, DefId>,
+    pub imports: PrintableUseTreeNode,
+    pub reachable: PrintableUseTreeNode,
+    pub nesting: usize,
+}
+
 thread_local! {
     static FORCE_IMPL_FILENAME_LINE: Cell<bool> = Cell::new(false);
     static SHOULD_PREFIX_WITH_CRATE: Cell<bool> = Cell::new(false);
+    static TYPING_CONTEXT: RefCell<TypingContextTLS> =
+        RefCell::new(TypingContextTLS::default());
+}
+
+pub fn with_typing_context<F, R>(f: F) -> R
+    where F: FnOnce(&mut TypingContextTLS) -> R
+{
+    TYPING_CONTEXT.with(|ctx| { f(&mut *ctx.borrow_mut()) })
 }
 
 /// Force us to name impls with just the filename/line number. We
@@ -167,6 +236,37 @@ impl RegionHighlightMode {
     }
 }
 
+fn populate_use_tree(use_tree: &mut PrintableUseTreeNode,
+    ident: &[Ident])
+{
+
+    use std::collections::hash_map::Entry::*;
+
+    match use_tree {
+        PrintableUseTreeNode::Leaf => {},
+        PrintableUseTreeNode::Tree(map) => {
+            if ident.len() == 1 {
+                match map.entry(ident[0]) {
+                    Vacant(v) => { v.insert(PrintableUseTreeNode::Leaf); }
+                    Occupied(_) => {}
+                }
+            } else {
+                match map.entry(*ident.last().unwrap()) {
+                    Vacant(v) => {
+                        let use_tree = v.insert(
+                            PrintableUseTreeNode::Tree(FxHashMap::default())
+                        );
+                        populate_use_tree(use_tree, &ident[..ident.len() -1]);
+                    }
+                    Occupied(mut o) => {
+                        populate_use_tree(o.get_mut(), &ident[..ident.len() - 1]);
+                    }
+                }
+            }
+        }
+    }
+}
+
 /// Trait for printers that pretty-print using `fmt::Write` to the printer.
 pub trait PrettyPrinter<'tcx>:
     Printer<
@@ -234,7 +334,13 @@ pub trait PrettyPrinter<'tcx>:
         def_id: DefId,
     ) -> Result<(Self, bool), Self::Error> {
         let mut callers = Vec::new();
-        self.try_print_visible_def_path_recur(def_id, &mut callers)
+        let mut diag_collect = Vec::new();
+
+        with_typing_context(|f| f.nesting += 1);
+        let res = self.try_print_visible_def_path_recur(def_id, &mut callers, &mut diag_collect);
+        with_typing_context(|f| f.nesting -= 1);
+
+        res
     }
 
     /// Does the work of `try_print_visible_def_path`, building the
@@ -251,14 +357,22 @@ pub trait PrettyPrinter<'tcx>:
         mut self,
         def_id: DefId,
         callers: &mut Vec<DefId>,
+        type_diag_collect: &mut Vec<Ident>,
     ) -> Result<(Self, bool), Self::Error> {
         define_scoped_cx!(self);
 
         debug!("try_print_visible_def_path: def_id={:?}", def_id);
+        let nesting = with_typing_context(|f| f.nesting);
 
         // If `def_id` is a direct or injected extern crate, return the
         // path to the crate followed by the path to the item within the crate.
         if def_id.index == CRATE_DEF_INDEX {
+            if !type_diag_collect.is_empty() && nesting == 1 {
+                let crate_name = self.tcx().def_path_str(def_id);
+                type_diag_collect.push(Ident::from_str(&crate_name));
+                return Ok((self, true));
+            }
+
             let cnum = def_id.krate;
 
             if cnum == LOCAL_CRATE {
@@ -326,16 +440,56 @@ pub trait PrettyPrinter<'tcx>:
         if callers.contains(&visible_parent) {
             return Ok((self, false));
         }
-        callers.push(visible_parent);
-        // HACK(eddyb) this bypasses `path_append`'s prefix printing to avoid
-        // knowing ahead of time whether the entire path will succeed or not.
-        // To support printers that do not implement `PrettyPrinter`, a `Vec` or
-        // linked list on the stack would need to be built, before any printing.
-        match self.try_print_visible_def_path_recur(visible_parent, callers)? {
-            (cx, false) => return Ok((cx, false)),
-            (cx, true) => self = cx,
+
+        #[derive(Copy, Clone)]
+        enum UseOrigin { Prelude, Import, Reachable };
+
+        let mut stop_with = None;
+        let mut shorter_types = false;
+        let type_diagnostic = self.tcx().sess.type_diagnostic.get();
+
+        if type_diag_collect.is_empty() && nesting == 1 {
+            if let Some((mod_def_id, mut node_id)) = with_typing_context(|f| f.usage) {
+                match type_diagnostic {
+                    TypeDiagnosticKind::ByUse | TypeDiagnosticKind::Minimal => {
+                        if let Some(import_map) = self.tcx().import_map.modules.get(&mod_def_id) {
+                            debug!("try_print_visible_def_path DAX: def_id={:?} node_id={:?}",
+                                def_id, node_id);
+
+                            while let Some(usage) = import_map.get(&node_id) {
+                                if let Some(ident) = usage.defs.get(&def_id) {
+                                    stop_with = Some((UseOrigin::Import, *ident));
+                                    break;
+                                }
+
+                                if let Some(parent_node_id) = usage.parent {
+                                    node_id = parent_node_id;
+                                } else {
+                                    break;
+                                }
+                            }
+
+                            if stop_with.is_none() {
+                                if let Some(ident) = self.tcx().import_map.prelude.get(&def_id) {
+                                    stop_with = Some((UseOrigin::Prelude, *ident));
+                                }
+                            }
+                            shorter_types = true;
+                        }
+                    }
+                    TypeDiagnosticKind::Uniform => {}
+                }
+            }
         }
-        callers.pop();
+
+        let type_diagnostic_minimal = shorter_types && {
+            if let TypeDiagnosticKind::Minimal = type_diagnostic {
+                true
+            } else {
+                false
+            }
+        };
+
         let actual_parent = self.tcx().parent(def_id);
         debug!(
             "try_print_visible_def_path: visible_parent={:?} actual_parent={:?}",
@@ -397,7 +551,82 @@ pub trait PrettyPrinter<'tcx>:
             }
             _ => {}
         }
+
+        // Add to type_diag_collect if nedeed.
+        match data {
+            DefPathData::TypeNs(ref name) => {
+                if type_diagnostic_minimal && stop_with.is_none() {
+                    stop_with = Some((UseOrigin::Reachable,
+                        (Ident::from_interned_str(*name), Namespace::TypeNS
+                    )));
+                }
+            }
+            _ => {}
+        }
+
         debug!("try_print_visible_def_path: data={:?}", data);
+
+        if let Some((_origin, ident)) = stop_with {
+            with_typing_context(|ctx| {
+                use std::collections::hash_map::Entry::*;
+
+                match ctx.legend.entry(ident.0) {
+                    Vacant(v) => { v.insert(def_id); }
+                    Occupied(o) => {
+                        if *o.get() != def_id {
+                            stop_with = None;
+                        }
+                    }
+                }
+            });
+        }
+
+        match data {
+            DefPathData::TypeNs(ref name) => {
+                if !type_diag_collect.is_empty() || stop_with.is_some() {
+                    type_diag_collect.push(Ident::from_interned_str(*name));
+                }
+            }
+            _ => {}
+        }
+
+        if let Some(_) = stop_with {
+            self.path_shorten();
+        }
+
+        callers.push(visible_parent);
+
+        // HACK(eddyb) this bypasses `path_append`'s prefix printing to avoid
+        // knowing ahead of time whether the entire path will succeed or not.
+        // To support printers that do not implement `PrettyPrinter`, a `Vec` or
+        // linked list on the stack would need to be built, before any printing.
+        match self.try_print_visible_def_path_recur(visible_parent, callers,
+            type_diag_collect)?
+        {
+            (cx, false) => return Ok((cx, false)),
+            (cx, true) => {
+                self = cx;
+            },
+        }
+        callers.pop();
+
+        match stop_with {
+            None => {
+                if !type_diag_collect.is_empty() {
+                    return Ok((self, true));
+                }
+            }
+            Some((origin, _)) => {
+                with_typing_context(|ctx| {
+                    let mut use_tree = match origin {
+                        UseOrigin::Prelude => return,
+                        UseOrigin::Import => &mut ctx.imports,
+                        UseOrigin::Reachable => &mut ctx.reachable,
+                    };
+                    populate_use_tree(&mut use_tree, &type_diag_collect);
+                });
+            }
+        }
 
         Ok((self.path_append(Ok, &DisambiguatedDefPathData {
             data,
@@ -1079,6 +1308,11 @@ impl<F: fmt::Write> Printer<'tcx> for FmtPrinter<'_, 'tcx, F> {
 
     fn tcx(&'a self) -> TyCtxt<'tcx> {
         self.tcx
+    }
+
+    fn path_shorten(&mut self) -> bool {
+        self.empty_path = true;
+        return true;
     }
 
     fn print_def_path(

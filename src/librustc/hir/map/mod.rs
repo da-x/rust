@@ -801,6 +801,17 @@ impl<'hir> Map<'hir> {
         hir_id
     }
 
+    pub fn lookup_until_root<F>(&self, hir_id: HirId, mut f: F)
+        where F: FnMut(HirId) -> bool
+    {
+        f(hir_id);
+        for (hir_id, _node) in ParentHirIterator::new(hir_id, &self) {
+            if !f(hir_id) {
+                break;
+            }
+        }
+    }
+
     /// Returns the `DefId` of `id`'s nearest module parent, or `id` itself if no
     /// module parent is in this map.
     pub fn get_module_parent(&self, id: HirId) -> DefId {

@@ -59,7 +59,7 @@ fn equate_intrinsic_type<'tcx>(
         abi
     )));
     let cause = ObligationCause::new(it.span, it.hir_id, ObligationCauseCode::IntrinsicType);
-    require_same_types(tcx, &cause, tcx.mk_fn_ptr(tcx.fn_sig(def_id)), fty);
+    require_same_types(tcx, &cause, it.hir_id, tcx.mk_fn_ptr(tcx.fn_sig(def_id)), fty);
 }
 
 /// Returns `true` if the given intrinsic is unsafe to call or not.

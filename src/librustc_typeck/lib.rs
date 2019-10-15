@@ -127,6 +127,7 @@ fn require_c_abi_if_c_variadic(tcx: TyCtxt<'_>, decl: &hir::FnDecl, abi: Abi, sp
 fn require_same_types<'tcx>(
     tcx: TyCtxt<'tcx>,
     cause: &ObligationCause<'tcx>,
+    hir: hir::HirId,
     expected: Ty<'tcx>,
     actual: Ty<'tcx>,
 ) -> bool {
@@ -138,7 +139,7 @@ fn require_same_types<'tcx>(
                 fulfill_cx.register_predicate_obligations(infcx, obligations);
             }
             Err(err) => {
-                infcx.report_mismatched_types(cause, expected, actual, err).emit();
+                infcx.report_mismatched_types(cause, expected, actual, err, Some(hir)).emit();
                 return false;
             }
         }
@@ -207,6 +208,7 @@ fn check_main_fn_ty(tcx: TyCtxt<'_>, main_def_id: DefId) {
             require_same_types(
                 tcx,
                 &ObligationCause::new(main_span, main_id, ObligationCauseCode::MainFunctionType),
+                main_id,
                 se_ty,
                 tcx.mk_fn_ptr(actual));
         }
@@ -264,6 +266,7 @@ fn check_start_fn_ty(tcx: TyCtxt<'_>, start_def_id: DefId) {
             require_same_types(
                 tcx,
                 &ObligationCause::new(start_span, start_id, ObligationCauseCode::StartFunctionType),
+                start_id,
                 se_ty,
                 tcx.mk_fn_ptr(tcx.fn_sig(start_def_id)));
         }

@@ -32,7 +32,7 @@ impl<'a, 'tcx> FnCtxt<'a, 'tcx> {
                 None
             },
             Err(e) => {
-                Some(self.report_mismatched_types(&cause, expected, actual, e))
+                Some(self.report_mismatched_types(&cause, expected, actual, e, None))
             }
         }
     }
@@ -60,7 +60,7 @@ impl<'a, 'tcx> FnCtxt<'a, 'tcx> {
                 None
             }
             Err(e) => {
-                Some(self.report_mismatched_types(cause, expected, actual, e))
+                Some(self.report_mismatched_types(cause, expected, actual, e, None))
             }
         }
     }
@@ -118,7 +118,7 @@ impl<'a, 'tcx> FnCtxt<'a, 'tcx> {
         let expr = expr.peel_drop_temps();
         let cause = self.misc(expr.span);
         let expr_ty = self.resolve_type_vars_with_obligations(checked_ty);
-        let mut err = self.report_mismatched_types(&cause, expected, expr_ty, e);
+        let mut err = self.report_mismatched_types(&cause, expected, expr_ty, e, Some(expr.hir_id));
 
         if self.is_assign_to_bool(expr, expected) {
             // Error reported in `check_assign` so avoid emitting error again.

@@ -146,10 +146,13 @@ impl Diagnostic {
     pub fn note_expected_found(&mut self,
                                label: &dyn fmt::Display,
                                expected: DiagnosticStyledString,
-                               found: DiagnosticStyledString)
+                               found: DiagnosticStyledString,
+                               imports: Vec<DiagnosticStyledString>,
+                               reachable: Vec<DiagnosticStyledString>,
+                               )
                                -> &mut Self
     {
-        self.note_expected_found_extra(label, expected, found, &"", &"")
+        self.note_expected_found_extra(label, expected, found, &"", &"", imports, reachable)
     }
 
     pub fn note_expected_found_extra(&mut self,
@@ -157,23 +160,42 @@ impl Diagnostic {
                                      expected: DiagnosticStyledString,
                                      found: DiagnosticStyledString,
                                      expected_extra: &dyn fmt::Display,
-                                     found_extra: &dyn fmt::Display)
+                                     found_extra: &dyn fmt::Display,
+                                     imports: Vec<DiagnosticStyledString>,
+                                     reachable: Vec<DiagnosticStyledString>,
+                                     )
                                      -> &mut Self
     {
         let mut msg: Vec<_> = vec![(format!("expected {} `", label), Style::NoStyle)];
-        msg.extend(expected.0.iter()
-                   .map(|x| match *x {
-                       StringPart::Normal(ref s) => (s.to_owned(), Style::NoStyle),
-                       StringPart::Highlighted(ref s) => (s.to_owned(), Style::Highlight),
-                   }));
+        let style_map = |x: &StringPart| match *x {
+            StringPart::Normal(ref s) => (s.to_owned(), Style::NoStyle),
+            StringPart::Highlighted(ref s) => (s.to_owned(), Style::Highlight),
+        };
+        msg.extend(expected.0.iter().map(style_map));
         msg.push((format!("`{}\n", expected_extra), Style::NoStyle));
         msg.push((format!("   found {} `", label), Style::NoStyle));
-        msg.extend(found.0.iter()
-                   .map(|x| match *x {
-                       StringPart::Normal(ref s) => (s.to_owned(), Style::NoStyle),
-                       StringPart::Highlighted(ref s) => (s.to_owned(), Style::Highlight),
-                   }));
+        msg.extend(found.0.iter().map(style_map));
         msg.push((format!("`{}", found_extra), Style::NoStyle));
+
+        for (use_kind, use_statements) in [(" via imports", &imports),
+                                           ("reachable by", &reachable)].iter() {
+            if use_statements.is_empty() {
+                continue;
+            }
+
+            msg.push((format!("\n"), Style::NoStyle));
+            msg.push((format!(" {} ", use_kind), Style::NoStyle));
+            for (index, statement) in use_statements.iter().enumerate() {
+                if index >= 1 {
+                    msg.push((format!("              "), Style::NoStyle));
+                }
+
+                msg.extend(statement.0.iter().map(style_map));
+                if index < use_statements.len() - 1 {
+                    msg.push((format!("\n"), Style::NoStyle));
+                }
+            }
+        }
 
         // For now, just attach these as notes
         self.highlighted_note(msg);

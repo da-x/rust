@@ -8,7 +8,7 @@ pub use self::fold::TypeFoldable;
 
 use crate::hir::{map as hir_map, GlobMap, TraitMap};
 use crate::hir::Node;
-use crate::hir::def::{Res, DefKind, CtorOf, CtorKind, ExportMap};
+use crate::hir::def::{Res, DefKind, CtorOf, CtorKind, ExportMap, Namespace};
 use crate::hir::def_id::{CrateNum, DefId, LocalDefId, CRATE_DEF_INDEX, LOCAL_CRATE};
 use rustc_data_structures::svh::Svh;
 use rustc_macros::HashStable;
@@ -119,12 +119,25 @@ mod sty;
 
 // Data types
 
+#[derive(Clone, Debug)]
+pub struct NodeImports {
+    pub parent: Option<NodeId>,
+    pub defs: FxHashMap<DefId, (Ident, Namespace)>,
+}
+
+#[derive(Debug, Clone)]
+pub struct ImportMap {
+    pub modules: FxHashMap<DefId, FxHashMap<NodeId, NodeImports>>,
+    pub prelude: FxHashMap<DefId, (Ident, Namespace)>,
+}
+
 #[derive(Clone)]
 pub struct Resolutions {
     pub extern_crate_map: NodeMap<CrateNum>,
     pub trait_map: TraitMap,
     pub maybe_unused_trait_imports: NodeSet,
     pub maybe_unused_extern_crates: Vec<(NodeId, Span)>,
+    pub import_map: ImportMap,
     pub export_map: ExportMap<NodeId>,
     pub glob_map: GlobMap,
     /// Extern prelude entries. The value is `true` if the entry was introduced

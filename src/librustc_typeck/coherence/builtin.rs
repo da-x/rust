@@ -362,7 +362,8 @@ pub fn coerce_unsized_info<'tcx>(tcx: TyCtxt<'tcx>, impl_did: DefId) -> CoerceUn
                 infcx.report_mismatched_types(&cause,
                                               mk_ptr(mt_b.ty),
                                               target,
-                                              ty::error::TypeError::Mutability)
+                                              ty::error::TypeError::Mutability,
+                                              Some(impl_hir_id))
                     .emit();
             }
             (mt_a.ty, mt_b.ty, unsize_trait, None)

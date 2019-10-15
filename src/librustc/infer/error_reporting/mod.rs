@@ -59,6 +59,7 @@ use crate::traits::{IfExpressionCause, MatchExpressionArmCause, ObligationCause}
 use crate::traits::{ObligationCauseCode};
 use crate::ty::error::TypeError;
 use crate::ty::{self, subst::{Subst, SubstsRef}, Region, Ty, TyCtxt, TypeFoldable};
+use crate::ty::print::PrintableUseTreeNode;
 use errors::{Applicability, DiagnosticBuilder, DiagnosticStyledString};
 use std::{cmp, fmt};
 use syntax_pos::{Pos, Span};
@@ -1151,6 +1152,29 @@ impl<'a, 'tcx> InferCtxt<'a, 'tcx> {
             diag.span_label(sp, msg);
         }
 
+        let (imports, reachable) = ty::print::with_typing_context(|ctx| {
+            ctx.usage = None;
+            let imports = std::mem::replace(&mut ctx.imports, PrintableUseTreeNode::default());
+            let reachable = std::mem::replace(&mut ctx.reachable, PrintableUseTreeNode::default());
+            (imports, reachable)
+        });
+
+        let mut imports_use = vec![];
+        let mut reachable_use = vec![];
+        for (diag_vec, printable) in [(&mut imports_use, &imports),
+                                      (&mut reachable_use, &reachable)].iter_mut()
+        {
+            if printable.is_empty() {
+                continue;
+            }
+
+            let mut use_statement = DiagnosticStyledString::new();
+            use_statement.push_normal("`use ");
+            use_statement.push_highlighted(format!("{}", printable));
+            use_statement.push_normal(";`");
+            diag_vec.push(use_statement);
+        }
+
         if let Some((expected, found)) = expected_found {
             match (terr, is_simple_error, expected == found) {
                 (&TypeError::Sorts(ref values), false, true) => {
@@ -1167,6 +1191,8 @@ impl<'a, 'tcx> InferCtxt<'a, 'tcx> {
                         found,
                         &sort_string(values.expected),
                         &sort_string(values.found),
+                        imports_use,
+                        reachable_use,
                     );
                 }
                 (_, false, _) => {
@@ -1174,7 +1200,8 @@ impl<'a, 'tcx> InferCtxt<'a, 'tcx> {
                         self.suggest_as_ref_where_appropriate(span, &exp_found, diag);
                     }
 
-                    diag.note_expected_found(&"type", expected, found);
+                    diag.note_expected_found(&"type", expected, found,
+                        imports_use, reachable_use);
                 }
                 _ => (),
             }

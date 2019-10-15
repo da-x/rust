@@ -59,6 +59,13 @@ pub struct OptimizationFuel {
     out_of_fuel: bool,
 }
 
+#[derive(Copy, Clone)]
+pub enum TypeDiagnosticKind {
+    Uniform,
+    ByUse,
+    Minimal,
+}
+
 /// Represents the data associated with a compilation
 /// session for a single crate.
 pub struct Session {
@@ -104,6 +111,10 @@ pub struct Session {
 
     /// The maximum length of types during monomorphization.
     pub type_length_limit: Once<usize>,
+
+    /// The maximum recursion limit for potentially infinitely recursive
+    /// operations such as auto-dereference and monomorphization.
+    pub type_diagnostic: Once<TypeDiagnosticKind>,
 
     /// The maximum number of stackframes allowed in const eval.
     pub const_eval_stack_frame_limit: usize,
@@ -1223,6 +1234,7 @@ fn build_session_(
         features: Once::new(),
         recursion_limit: Once::new(),
         type_length_limit: Once::new(),
+        type_diagnostic: Once::new(),
         const_eval_stack_frame_limit: 100,
         next_node_id: OneThread::new(Cell::new(NodeId::from_u32(1))),
         allocator_kind: Once::new(),

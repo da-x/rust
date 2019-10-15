@@ -83,6 +83,8 @@ pub trait Printer<'tcx>: Sized {
         cnum: CrateNum,
     ) -> Result<Self::Path, Self::Error>;
 
+    fn path_shorten(&mut self) -> bool { false }
+
     fn path_qualified(
         self,
         self_ty: Ty<'tcx>,

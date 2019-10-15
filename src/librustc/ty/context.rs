@@ -29,7 +29,7 @@ use crate::traits;
 use crate::traits::{Clause, Clauses, GoalKind, Goal, Goals};
 use crate::ty::{self, DefIdTree, Ty, TypeAndMut};
 use crate::ty::{TyS, TyKind, List};
-use crate::ty::{AdtKind, AdtDef, Region, Const};
+use crate::ty::{AdtKind, AdtDef, Region, Const, ImportMap};
 use crate::ty::{PolyFnSig, InferTy, ParamTy, ProjectionTy, ExistentialPredicate, Predicate};
 use crate::ty::RegionKind;
 use crate::ty::{TyVar, TyVid, IntVar, IntVid, FloatVar, FloatVid, ConstVid};
@@ -1104,6 +1104,9 @@ pub struct GlobalCtxt<'tcx> {
     /// Stores the value of constants (and deduplicates the actual memory)
     allocation_interner: ShardedHashMap<&'tcx Allocation, ()>,
 
+    /// Use Map
+    pub import_map: ImportMap,
+
     pub alloc_map: Lock<interpret::AllocMap<'tcx>>,
 
     layout_interner: ShardedHashMap<&'tcx LayoutDetails, ()>,
@@ -1299,6 +1302,7 @@ impl<'tcx> TyCtxt<'tcx> {
                 (hir.local_def_id_from_node_id(id), names)
             }).collect(),
             extern_prelude: resolutions.extern_prelude,
+            import_map: resolutions.import_map,
             hir_map: hir,
             def_path_hash_to_def_id,
             queries: query::Queries::new(

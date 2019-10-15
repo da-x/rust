@@ -28,7 +28,7 @@ use rustc::hir::def::{self, DefKind, PartialRes, CtorKind, CtorOf, NonMacroAttrK
 use rustc::hir::def::Namespace::*;
 use rustc::hir::def_id::{CRATE_DEF_INDEX, LOCAL_CRATE, CrateNum, DefId};
 use rustc::hir::{TraitMap, GlobMap};
-use rustc::ty::{self, DefIdTree};
+use rustc::ty::{self, DefIdTree, NodeImports, ImportMap};
 use rustc::util::nodemap::{NodeMap, NodeSet, FxHashMap, FxHashSet, DefIdMap};
 use rustc::span_bug;
 
@@ -474,6 +474,10 @@ pub struct ModuleData<'a> {
     // Used to memoize the traits in this module for faster searches through all traits in scope.
     traits: RefCell<Option<Box<[(Ident, &'a NameBinding<'a>)]>>>,
 
+    // Used for building a tree of what use imports are available where, so that diagnostics
+    // mentioning types can shorten type paths.
+    sub_modules: RefCell<Vec<Module<'a>>>,
+
     /// Span of the module itself. Used for error reporting.
     span: Span,
 
@@ -501,6 +505,7 @@ impl<'a> ModuleData<'a> {
             traits: RefCell::new(None),
             span,
             expansion,
+            sub_modules: RefCell::new(vec![]),
         }
     }
 
@@ -1298,7 +1303,9 @@ impl<'a> Resolver<'a> {
         span: Span,
     ) -> Module<'a> {
         let module = ModuleData::new(Some(parent), kind, normal_ancestor_id, expn_id, span);
-        self.arenas.alloc_module(module)
+        let module = self.arenas.alloc_module(module);
+        parent.sub_modules.borrow_mut().push(module);
+        module
     }
 
     fn new_key(&mut self, ident: Ident, ns: Namespace) -> BindingKey {
@@ -2809,6 +2816,63 @@ impl<'a> Resolver<'a> {
         let mut seg = ast::PathSegment::from_ident(ident);
         seg.id = self.session.next_node_id();
         seg
+    }
+
+    pub fn make_import_map(&self) -> ImportMap {
+        let mut modules = FxHashMap::default();
+
+        for (def_id, module) in self.module_map.iter() {
+            let mut mod_import_map = FxHashMap::default();
+            self.make_import_map_recur(module, &mut mod_import_map, None);
+            modules.insert(*def_id, mod_import_map);
+        }
+
+        debug!("make_import_map: preparing prelude next");
+
+        ImportMap {
+            modules,
+            prelude: match self.prelude {
+                Some(prelude) => Self::make_module_defs(prelude),
+                None => FxHashMap::default(),
+            }
+        }
+    }
+
+    fn make_import_map_recur(&self, module: Module<'a>,
+        mod_import_map: &mut FxHashMap<NodeId, NodeImports>,
+        parent: Option<NodeId>)
+    {
+        let user = match &module.kind {
+            ModuleKind::Block(node_id) => *node_id,
+            ModuleKind::Def(_, def_id, _) => {
+                if let Some(node_id) = self.definitions.as_local_node_id(*def_id) {
+                    node_id
+                } else {
+                    return;
+                }
+            },
+        };
+
+        let defs = Self::make_module_defs(module);
+        mod_import_map.insert(user, NodeImports { parent, defs });
+
+        for sub_module in module.sub_modules.borrow().iter() {
+            self.make_import_map_recur(sub_module, mod_import_map, Some(user));
+        }
+    }
+
+    fn make_module_defs(module: Module<'a>) -> FxHashMap<DefId, (Ident, Namespace)> {
+        let mut defs = FxHashMap::default();
+
+        for (ident_namespace, r) in &*module.lazy_resolutions.borrow() {
+            if let Some(bindings) = &r.borrow().binding {
+                if let Some(def_id) = bindings.res().opt_def_id() {
+                    defs.insert(def_id, (ident_namespace.ident, ident_namespace.ns));
+                }
+            }
+        }
+
+        defs
     }
 }
 

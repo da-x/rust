@@ -166,9 +166,11 @@ impl ExpansionResult {
     fn from_owned_resolver(
         resolver: Resolver<'_>,
     ) -> Self {
+        let import_map = resolver.make_import_map();
         ExpansionResult {
             defs: Steal::new(resolver.definitions),
             resolutions: Steal::new(Resolutions {
+                import_map,
                 extern_crate_map: resolver.extern_crate_map,
                 export_map: resolver.export_map,
                 trait_map: resolver.trait_map,
@@ -185,9 +187,11 @@ impl ExpansionResult {
     pub fn from_resolver_ref(
         resolver: &Resolver<'_>,
     ) -> Self {
+        let import_map = resolver.make_import_map();
         ExpansionResult {
             defs: Steal::new(resolver.definitions.clone()),
             resolutions: Steal::new(Resolutions {
+                import_map,
                 extern_crate_map: resolver.extern_crate_map.clone(),
                 export_map: resolver.export_map.clone(),
                 trait_map: resolver.trait_map.clone(),
@@ -266,6 +270,9 @@ pub fn register_plugins<'a>(
 
     time(sess, "recursion limit", || {
         middle::recursion_limit::update_limits(sess, &krate);
+    });
+    time(sess, "type diagnostics", || {
+        middle::type_diagnostic::update(sess, &krate);
     });
 
     let registrars = time(sess, "plugin loading", || {

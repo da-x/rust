@@ -199,6 +199,8 @@ impl<'a> DiagnosticBuilder<'a> {
                                         label: &dyn fmt::Display,
                                         expected: DiagnosticStyledString,
                                         found: DiagnosticStyledString,
+                                        imports: Vec<DiagnosticStyledString>,
+                                        reachable: Vec<DiagnosticStyledString>,
                                         ) -> &mut Self);
 
     forward!(pub fn note_expected_found_extra(&mut self,
@@ -207,6 +209,8 @@ impl<'a> DiagnosticBuilder<'a> {
                                               found: DiagnosticStyledString,
                                               expected_extra: &dyn fmt::Display,
                                               found_extra: &dyn fmt::Display,
+                                              imports: Vec<DiagnosticStyledString>,
+                                              reachable: Vec<DiagnosticStyledString>,
                                               ) -> &mut Self);
 
     forward!(pub fn note(&mut self, msg: &str) -> &mut Self);

@@ -1259,7 +1259,8 @@ impl<'tcx, 'exprs, E: AsCoercionSite> CoerceMany<'tcx, 'exprs, E> {
                             cause, expected, found, coercion_error, fcx, id, None);
                     }
                     _ => {
-                        err = fcx.report_mismatched_types(cause, expected, found, coercion_error);
+                        err = fcx.report_mismatched_types(cause, expected, found, coercion_error,
+                            expression.map(|expr| expr.hir_id));
                     }
                 }
 
@@ -1286,7 +1287,7 @@ impl<'tcx, 'exprs, E: AsCoercionSite> CoerceMany<'tcx, 'exprs, E> {
         id: hir::HirId,
         expression: Option<(&'tcx hir::Expr, hir::HirId)>,
     ) -> DiagnosticBuilder<'a> {
-        let mut err = fcx.report_mismatched_types(cause, expected, found, ty_err);
+        let mut err = fcx.report_mismatched_types(cause, expected, found, ty_err, Some(id));
 
         let mut pointing_at_return_type = false;
         let mut return_sp = None;

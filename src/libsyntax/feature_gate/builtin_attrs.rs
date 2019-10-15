@@ -326,6 +326,9 @@ pub const BUILTIN_ATTRIBUTES: &[BuiltinAttribute] = &[
 
     gated!(ffi_returns_twice, Whitelisted, template!(Word), experimental!(ffi_returns_twice)),
     gated!(track_caller, Whitelisted, template!(Word), experimental!(track_caller)),
+    gated!(type_diagnostic, CrateLevel,
+        template!(NameValueStr: "uniform|by-import|minimal"),
+        experimental!(type_diagnostic)),
 
     // ==========================================================================
     // Internal attributes: Stability, deprecation, and unsafe:

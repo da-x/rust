@@ -1419,8 +1419,42 @@ impl<'a, 'tcx> InferCtxt<'a, 'tcx> {
         expected: Ty<'tcx>,
         actual: Ty<'tcx>,
         err: TypeError<'tcx>,
+        hir: Option<hir::HirId>,
     ) -> DiagnosticBuilder<'tcx> {
         let trace = TypeTrace::types(cause, true, expected, actual);
+
+        if let Some(hir) = hir {
+            let tcx_hir = self.tcx.hir();
+
+            let mod_def_id = tcx_hir.get_module_parent(hir);
+            if let Some(import_map) = self.tcx.import_map.modules.get(&mod_def_id) {
+                let mut usage = None;
+
+                tcx_hir.lookup_until_root(hir, |hir| {
+                    let path_node_id = tcx_hir.hir_to_node_id(hir);
+                    debug!("report_mismatched_types DAX, {:?}", path_node_id);
+
+                    if import_map.contains_key(&path_node_id) {
+                        usage = Some((mod_def_id, path_node_id));
+                        false
+                    } else {
+                        true
+                    }
+                });
+
+                if let Some(usage) = usage {
+                    ty::print::with_typing_context(|ctx| {
+                        ctx.usage = Some(usage);
+                    });
+                    let res = self.report_and_explain_type_error(trace, &err);
+                    ty::print::with_typing_context(|ctx| {
+                        ctx.usage = None;
+                    });
+                    return res;
+                }
+            }
+        }
+
         self.report_and_explain_type_error(trace, &err)
     }
 
