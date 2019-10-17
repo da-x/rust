@@ -37,5 +37,5 @@ pub fn update(sess: &Session, krate: &syntax::ast::Crate) {
         }
     }
 
-    sess.type_diagnostic.set(TypeDiagnosticKind::Uniform);
+    sess.type_diagnostic.set(TypeDiagnosticKind::Minimal);
 }

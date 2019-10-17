@@ -7,8 +7,9 @@ LL | |     loop {}
 LL | | }
    | |_^ expected normal fn, found unsafe fn
    |
-   = note: expected type `fn(proc_macro::TokenStream) -> proc_macro::TokenStream`
+   = note: expected type `fn(TokenStream) -> TokenStream`
               found type `unsafe extern "C" fn(i32, u32) -> u32 {foo}`
+            reachable by `use proc_macro::TokenStream;`
 
 error: aborting due to previous error
 

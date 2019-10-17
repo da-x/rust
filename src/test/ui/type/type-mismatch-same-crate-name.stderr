@@ -2,10 +2,11 @@ error[E0308]: mismatched types
   --> $DIR/type-mismatch-same-crate-name.rs:16:20
    |
 LL |         a::try_foo(foo2);
-   |                    ^^^^ expected struct `main::a::Foo`, found a different struct `main::a::Foo`
+   |                    ^^^^ expected struct `Foo`, found struct `main::a::Foo`
    |
-   = note: expected type `main::a::Foo` (struct `main::a::Foo`)
-              found type `main::a::Foo` (struct `main::a::Foo`)
+   = note: expected type `Foo`
+              found type `main::a::Foo`
+            reachable by `use main::a::Foo;`
 note: Perhaps two different versions of crate `crate_a1` are being used?
   --> $DIR/type-mismatch-same-crate-name.rs:16:20
    |
@@ -16,10 +17,11 @@ error[E0308]: mismatched types
   --> $DIR/type-mismatch-same-crate-name.rs:22:20
    |
 LL |         a::try_bar(bar2);
-   |                    ^^^^ expected trait `main::a::Bar`, found a different trait `main::a::Bar`
+   |                    ^^^^ expected trait `Bar`, found trait `main::a::Bar`
    |
-   = note: expected type `std::boxed::Box<(dyn main::a::Bar + 'static)>`
-              found type `std::boxed::Box<dyn main::a::Bar>`
+   = note: expected type `Box<(dyn Bar + 'static)>`
+              found type `Box<dyn main::a::Bar>`
+            reachable by `use main::a::Bar;`
 note: Perhaps two different versions of crate `crate_a1` are being used?
   --> $DIR/type-mismatch-same-crate-name.rs:22:20
    |

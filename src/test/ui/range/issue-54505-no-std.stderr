@@ -6,11 +6,12 @@ error[E0308]: mismatched types
 LL |     take_range(0..1);
    |                ^^^^
    |                |
-   |                expected reference, found struct `core::ops::Range`
+   |                expected reference, found struct `Range`
    |                help: consider borrowing here: `&(0..1)`
    |
    = note: expected type `&_`
-              found type `core::ops::Range<{integer}>`
+              found type `Range<{integer}>`
+            reachable by `use core::ops::Range;`
 
 error[E0308]: mismatched types
   --> $DIR/issue-54505-no-std.rs:33:16
@@ -18,11 +19,12 @@ error[E0308]: mismatched types
 LL |     take_range(1..);
    |                ^^^
    |                |
-   |                expected reference, found struct `core::ops::RangeFrom`
+   |                expected reference, found struct `RangeFrom`
    |                help: consider borrowing here: `&(1..)`
    |
    = note: expected type `&_`
-              found type `core::ops::RangeFrom<{integer}>`
+              found type `RangeFrom<{integer}>`
+            reachable by `use core::ops::RangeFrom;`
 
 error[E0308]: mismatched types
   --> $DIR/issue-54505-no-std.rs:38:16
@@ -30,11 +32,12 @@ error[E0308]: mismatched types
 LL |     take_range(..);
    |                ^^
    |                |
-   |                expected reference, found struct `core::ops::RangeFull`
+   |                expected reference, found struct `RangeFull`
    |                help: consider borrowing here: `&(..)`
    |
    = note: expected type `&_`
-              found type `core::ops::RangeFull`
+              found type `RangeFull`
+            reachable by `use core::ops::RangeFull;`
 
 error[E0308]: mismatched types
   --> $DIR/issue-54505-no-std.rs:43:16
@@ -42,11 +45,12 @@ error[E0308]: mismatched types
 LL |     take_range(0..=1);
    |                ^^^^^
    |                |
-   |                expected reference, found struct `core::ops::RangeInclusive`
+   |                expected reference, found struct `RangeInclusive`
    |                help: consider borrowing here: `&(0..=1)`
    |
    = note: expected type `&_`
-              found type `core::ops::RangeInclusive<{integer}>`
+              found type `RangeInclusive<{integer}>`
+            reachable by `use core::ops::RangeInclusive;`
 
 error[E0308]: mismatched types
   --> $DIR/issue-54505-no-std.rs:48:16
@@ -54,11 +58,12 @@ error[E0308]: mismatched types
 LL |     take_range(..5);
    |                ^^^
    |                |
-   |                expected reference, found struct `core::ops::RangeTo`
+   |                expected reference, found struct `RangeTo`
    |                help: consider borrowing here: `&(..5)`
    |
    = note: expected type `&_`
-              found type `core::ops::RangeTo<{integer}>`
+              found type `RangeTo<{integer}>`
+            reachable by `use core::ops::RangeTo;`
 
 error[E0308]: mismatched types
   --> $DIR/issue-54505-no-std.rs:53:16
@@ -66,11 +71,12 @@ error[E0308]: mismatched types
 LL |     take_range(..=42);
    |                ^^^^^
    |                |
-   |                expected reference, found struct `core::ops::RangeToInclusive`
+   |                expected reference, found struct `RangeToInclusive`
    |                help: consider borrowing here: `&(..=42)`
    |
    = note: expected type `&_`
-              found type `core::ops::RangeToInclusive<{integer}>`
+              found type `RangeToInclusive<{integer}>`
+            reachable by `use core::ops::RangeToInclusive;`
 
 error: aborting due to 7 previous errors
 

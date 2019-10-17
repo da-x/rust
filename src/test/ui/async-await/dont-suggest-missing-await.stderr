@@ -5,7 +5,8 @@ LL |         take_u32(x)
    |                  ^ expected u32, found opaque type
    |
    = note: expected type `u32`
-              found type `impl std::future::Future`
+              found type `impl Future`
+            reachable by `use std::future::Future;`
 
 error: aborting due to previous error
 

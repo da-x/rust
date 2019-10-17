@@ -20,10 +20,10 @@ error[E0308]: mismatched types
   --> $DIR/fn-item-type.rs:23:23
    |
 LL |     eq(bar::<String>, bar::<Vec<u8>>);
-   |                       ^^^^^^^^^^^^^^ expected struct `std::string::String`, found struct `std::vec::Vec`
+   |                       ^^^^^^^^^^^^^^ expected struct `String`, found struct `Vec`
    |
-   = note: expected type `fn(isize) -> isize {bar::<std::string::String>}`
-              found type `fn(isize) -> isize {bar::<std::vec::Vec<u8>>}`
+   = note: expected type `fn(isize) -> isize {bar::<String>}`
+              found type `fn(isize) -> isize {bar::<Vec<u8>>}`
 
 error[E0308]: mismatched types
   --> $DIR/fn-item-type.rs:30:26
