@@ -922,6 +922,9 @@ pub struct Resolver<'a> {
     maybe_unused_trait_imports: FxHashSet<LocalDefId>,
     maybe_unused_extern_crates: Vec<(LocalDefId, Span)>,
 
+    /// Names that uniquely identify an importable definition.
+    unique_symbols: FxHashMap<DefId, Symbol>,
+
     /// Privacy errors are delayed until the end in order to deduplicate them.
     privacy_errors: Vec<PrivacyError<'a>>,
     /// Ambiguity errors are delayed for deduplication.
@@ -1297,6 +1300,8 @@ impl<'a> Resolver<'a> {
             maybe_unused_trait_imports: Default::default(),
             maybe_unused_extern_crates: Vec::new(),
 
+            unique_symbols: FxHashMap::default(),
+
             privacy_errors: Vec::new(),
             ambiguity_errors: Vec::new(),
             use_injections: Vec::new(),
@@ -1378,12 +1383,15 @@ impl<'a> Resolver<'a> {
         let maybe_unused_trait_imports = self.maybe_unused_trait_imports;
         let maybe_unused_extern_crates = self.maybe_unused_extern_crates;
         let glob_map = self.glob_map;
+        let unique_symbols = self.unique_symbols;
+
         ResolverOutputs {
             definitions: definitions,
             cstore: Box::new(self.crate_loader.into_cstore()),
             extern_crate_map,
             export_map,
             glob_map,
+            unique_symbols,
             maybe_unused_trait_imports,
             maybe_unused_extern_crates,
             extern_prelude: self
@@ -1401,6 +1409,7 @@ impl<'a> Resolver<'a> {
             extern_crate_map: self.extern_crate_map.clone(),
             export_map: self.export_map.clone(),
             glob_map: self.glob_map.clone(),
+            unique_symbols: self.unique_symbols.clone(),
             maybe_unused_trait_imports: self.maybe_unused_trait_imports.clone(),
             maybe_unused_extern_crates: self.maybe_unused_extern_crates.clone(),
             extern_prelude: self
@@ -1455,6 +1464,7 @@ impl<'a> Resolver<'a> {
         self.finalize_macro_resolutions();
 
         self.late_resolve_crate(krate);
+        self.find_unique_symbols();
 
         self.check_unused(krate);
         self.report_errors(krate);

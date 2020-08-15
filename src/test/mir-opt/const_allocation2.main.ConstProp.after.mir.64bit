@@ -2,19 +2,19 @@
 
 fn main() -> () {
     let mut _0: ();                      // return place in scope 0 at $DIR/const_allocation2.rs:4:11: 4:11
-    let _1: &[(std::option::Option<i32>, &[&u8])]; // in scope 0 at $DIR/const_allocation2.rs:5:5: 5:8
-    let mut _2: &&[(std::option::Option<i32>, &[&u8])]; // in scope 0 at $DIR/const_allocation2.rs:5:5: 5:8
+    let _1: &[(Option<i32>, &[&u8])];    // in scope 0 at $DIR/const_allocation2.rs:5:5: 5:8
+    let mut _2: &&[(Option<i32>, &[&u8])]; // in scope 0 at $DIR/const_allocation2.rs:5:5: 5:8
 
     bb0: {
         StorageLive(_1);                 // scope 0 at $DIR/const_allocation2.rs:5:5: 5:8
         StorageLive(_2);                 // scope 0 at $DIR/const_allocation2.rs:5:5: 5:8
-        _2 = const {alloc0: &&[(std::option::Option<i32>, &[&u8])]}; // scope 0 at $DIR/const_allocation2.rs:5:5: 5:8
+        _2 = const {alloc0: &&[(Option<i32>, &[&u8])]}; // scope 0 at $DIR/const_allocation2.rs:5:5: 5:8
                                          // ty::Const
-                                         // + ty: &&[(std::option::Option<i32>, &[&u8])]
+                                         // + ty: &&[(Option<i32>, &[&u8])]
                                          // + val: Value(Scalar(alloc0))
                                          // mir::Constant
                                          // + span: $DIR/const_allocation2.rs:5:5: 5:8
-                                         // + literal: Const { ty: &&[(std::option::Option<i32>, &[&u8])], val: Value(Scalar(alloc0)) }
+                                         // + literal: Const { ty: &&[(Option<i32>, &[&u8])], val: Value(Scalar(alloc0)) }
         _1 = (*_2);                      // scope 0 at $DIR/const_allocation2.rs:5:5: 5:8
         StorageDead(_2);                 // scope 0 at $DIR/const_allocation2.rs:5:8: 5:9
         StorageDead(_1);                 // scope 0 at $DIR/const_allocation2.rs:5:8: 5:9

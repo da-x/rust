@@ -122,7 +122,7 @@ mod cross_crate {
         let _ = StableUnitStruct;
 
         let _ = Enum::DeprecatedVariant; //~ WARN use of deprecated variant `lint_stability::Enum::DeprecatedVariant`
-        let _ = Enum::DeprecatedUnstableVariant; //~ WARN use of deprecated variant `lint_stability::Enum::DeprecatedUnstableVariant`
+        let _ = Enum::DeprecatedUnstableVariant; //~ WARN use of deprecated variant `DeprecatedUnstableVariant`
         let _ = Enum::UnstableVariant;
         let _ = Enum::StableVariant;
 
@@ -437,7 +437,7 @@ mod this_crate {
     #[rustc_deprecated(since = "1.0.0", reason = "text")]
     fn test_fn_body() {
         fn fn_in_body() {}
-        fn_in_body(); //~ WARN use of deprecated function `this_crate::test_fn_body::fn_in_body`: text
+        fn_in_body(); //~ WARN use of deprecated function `test_fn_body::fn_in_body`: text
     }
 
     impl MethodTester {

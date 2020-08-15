@@ -7,7 +7,7 @@ LL |
 LL | impl<U:Sugar> Cake<Box<U>> { fn dummy(&self) { } }
    |                              ------------------- other definition for `dummy`
    |
-   = note: downstream crates may implement trait `Sugar` for type `std::boxed::Box<_>`
+   = note: downstream crates may implement trait `Sugar` for type `Box<_>`
 
 error: aborting due to previous error
 

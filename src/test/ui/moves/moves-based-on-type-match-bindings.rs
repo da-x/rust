@@ -15,7 +15,7 @@ fn f10() {
 
     touch(&x); //~ ERROR borrow of moved value: `x`
     //~^ value borrowed here after partial move
-    //~| move occurs because `x.f` has type `std::string::String`
+    //~| move occurs because `x.f` has type `String`
 }
 
 fn main() {}

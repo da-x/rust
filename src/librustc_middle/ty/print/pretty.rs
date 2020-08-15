@@ -243,6 +243,21 @@ pub trait PrettyPrinter<'tcx>:
         self.try_print_visible_def_path_recur(def_id, &mut callers)
     }
 
+    /// Try to see if this is a unique symbol, meaning there's no other definition with
+    /// the same name.
+    fn try_print_trimmed_def_path(
+        mut self,
+        def_id: DefId,
+    ) -> Result<(Self::Path, bool), Self::Error> {
+        match self.tcx().unique_symbols.get(&def_id) {
+            None => return Ok((self, false)),
+            Some(symbol) => {
+                self.write_str(&symbol.as_str())?;
+                return Ok((self, true));
+            }
+        }
+    }
+
     /// Does the work of `try_print_visible_def_path`, building the
     /// full definition path recursively before attempting to
     /// post-process it into the valid and visible version that
@@ -1324,6 +1339,13 @@ impl<F: fmt::Write> Printer<'tcx> for FmtPrinter<'_, 'tcx, F> {
         define_scoped_cx!(self);
 
         if substs.is_empty() {
+            if !SHOULD_PREFIX_WITH_CRATE.with(|flag| flag.get()) {
+                match self.try_print_trimmed_def_path(def_id)? {
+                    (cx, true) => return Ok(cx),
+                    (cx, false) => self = cx,
+                }
+            }
+
             match self.try_print_visible_def_path(def_id)? {
                 (cx, true) => return Ok(cx),
                 (cx, false) => self = cx,

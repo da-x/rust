@@ -106,7 +106,7 @@ warning: use of deprecated variant `lint_stability::Enum::DeprecatedVariant`: te
 LL |         let _ = Enum::DeprecatedVariant;
    |                 ^^^^^^^^^^^^^^^^^^^^^^^
 
-warning: use of deprecated variant `lint_stability::Enum::DeprecatedUnstableVariant`: text
+warning: use of deprecated variant `DeprecatedUnstableVariant`: text
   --> $DIR/lint-stability-deprecated.rs:125:17
    |
 LL |         let _ = Enum::DeprecatedUnstableVariant;
@@ -292,7 +292,7 @@ warning: use of deprecated associated function `this_crate::Trait::trait_depreca
 LL | ...   <Foo as Trait>::trait_deprecated_text(&foo);
    |       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-warning: use of deprecated function `this_crate::test_fn_body::fn_in_body`: text
+warning: use of deprecated function `test_fn_body::fn_in_body`: text
   --> $DIR/lint-stability-deprecated.rs:440:9
    |
 LL |         fn_in_body();

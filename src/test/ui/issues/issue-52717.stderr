@@ -1,10 +1,10 @@
-error[E0026]: variant `A::A` does not have a field named `fob`
+error[E0026]: variant `A` does not have a field named `fob`
   --> $DIR/issue-52717.rs:10:12
    |
 LL |     A::A { fob } => { println!("{}", fob); }
    |            ^^^
    |            |
-   |            variant `A::A` does not have this field
+   |            variant `A` does not have this field
    |            help: a field with a similar name exists: `foo`
 
 error: aborting due to previous error

@@ -126,6 +126,8 @@ pub struct ResolverOutputs {
     pub definitions: rustc_hir::definitions::Definitions,
     pub cstore: Box<CrateStoreDyn>,
     pub extern_crate_map: FxHashMap<LocalDefId, CrateNum>,
+    /// Names that uniquely identify an importable definition.
+    pub unique_symbols: FxHashMap<DefId, Symbol>,
     pub maybe_unused_trait_imports: FxHashSet<LocalDefId>,
     pub maybe_unused_extern_crates: Vec<(LocalDefId, Span)>,
     pub export_map: ExportMap<LocalDefId>,

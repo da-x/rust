@@ -3,19 +3,19 @@
 fn main() -> () {
     let mut _0: ();                      // return place in scope 0 at $DIR/match_false_edges.rs:34:11: 34:11
     let mut _1: i32;                     // in scope 0 at $DIR/match_false_edges.rs:35:13: 40:6
-    let mut _2: std::option::Option<i32>; // in scope 0 at $DIR/match_false_edges.rs:35:19: 35:26
+    let mut _2: Option<i32>;             // in scope 0 at $DIR/match_false_edges.rs:35:19: 35:26
     let mut _3: isize;                   // in scope 0 at $DIR/match_false_edges.rs:38:9: 38:16
     let mut _4: isize;                   // in scope 0 at $DIR/match_false_edges.rs:36:9: 36:17
-    let mut _5: &std::option::Option<i32>; // in scope 0 at $DIR/match_false_edges.rs:35:19: 35:26
+    let mut _5: &Option<i32>;            // in scope 0 at $DIR/match_false_edges.rs:35:19: 35:26
     let _6: i32;                         // in scope 0 at $DIR/match_false_edges.rs:36:14: 36:16
     let _7: &i32;                        // in scope 0 at $DIR/match_false_edges.rs:36:14: 36:16
     let mut _8: bool;                    // in scope 0 at $DIR/match_false_edges.rs:36:21: 36:28
-    let _9: std::option::Option<i32>;    // in scope 0 at $DIR/match_false_edges.rs:37:9: 37:11
+    let _9: Option<i32>;                 // in scope 0 at $DIR/match_false_edges.rs:37:9: 37:11
     let _10: i32;                        // in scope 0 at $DIR/match_false_edges.rs:38:14: 38:15
     let _11: &i32;                       // in scope 0 at $DIR/match_false_edges.rs:38:14: 38:15
     let mut _12: bool;                   // in scope 0 at $DIR/match_false_edges.rs:38:20: 38:29
     let mut _13: i32;                    // in scope 0 at $DIR/match_false_edges.rs:38:27: 38:28
-    let _14: std::option::Option<i32>;   // in scope 0 at $DIR/match_false_edges.rs:39:9: 39:11
+    let _14: Option<i32>;                // in scope 0 at $DIR/match_false_edges.rs:39:9: 39:11
     scope 1 {
     }
     scope 2 {
@@ -36,7 +36,7 @@ fn main() -> () {
     bb0: {
         StorageLive(_1);                 // scope 0 at $DIR/match_false_edges.rs:35:13: 40:6
         StorageLive(_2);                 // scope 0 at $DIR/match_false_edges.rs:35:19: 35:26
-        _2 = std::option::Option::<i32>::Some(const 1_i32); // scope 0 at $DIR/match_false_edges.rs:35:19: 35:26
+        _2 = Option::<i32>::Some(const 1_i32); // scope 0 at $DIR/match_false_edges.rs:35:19: 35:26
                                          // ty::Const
                                          // + ty: i32
                                          // + val: Value(Scalar(0x00000001))

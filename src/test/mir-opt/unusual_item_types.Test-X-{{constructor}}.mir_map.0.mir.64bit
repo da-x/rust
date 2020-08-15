@@ -1,6 +1,6 @@
-// MIR for `Test::X` 0 mir_map
+// MIR for `X` 0 mir_map
 
-fn Test::X(_1: usize) -> Test {
+fn X(_1: usize) -> Test {
     let mut _0: Test;                    // return place in scope 0 at $DIR/unusual-item-types.rs:16:5: 16:13
 
     bb0: {

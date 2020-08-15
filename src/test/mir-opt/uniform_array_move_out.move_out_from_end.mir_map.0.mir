@@ -2,14 +2,14 @@
 
 fn move_out_from_end() -> () {
     let mut _0: ();                      // return place in scope 0 at $DIR/uniform_array_move_out.rs:4:24: 4:24
-    let _1: [std::boxed::Box<i32>; 2];   // in scope 0 at $DIR/uniform_array_move_out.rs:5:9: 5:10
-    let mut _2: std::boxed::Box<i32>;    // in scope 0 at $DIR/uniform_array_move_out.rs:5:14: 5:19
-    let mut _3: std::boxed::Box<i32>;    // in scope 0 at $DIR/uniform_array_move_out.rs:5:14: 5:19
-    let mut _4: std::boxed::Box<i32>;    // in scope 0 at $DIR/uniform_array_move_out.rs:5:21: 5:26
-    let mut _5: std::boxed::Box<i32>;    // in scope 0 at $DIR/uniform_array_move_out.rs:5:21: 5:26
+    let _1: [Box<i32>; 2];               // in scope 0 at $DIR/uniform_array_move_out.rs:5:9: 5:10
+    let mut _2: Box<i32>;                // in scope 0 at $DIR/uniform_array_move_out.rs:5:14: 5:19
+    let mut _3: Box<i32>;                // in scope 0 at $DIR/uniform_array_move_out.rs:5:14: 5:19
+    let mut _4: Box<i32>;                // in scope 0 at $DIR/uniform_array_move_out.rs:5:21: 5:26
+    let mut _5: Box<i32>;                // in scope 0 at $DIR/uniform_array_move_out.rs:5:21: 5:26
     scope 1 {
         debug a => _1;                   // in scope 1 at $DIR/uniform_array_move_out.rs:5:9: 5:10
-        let _6: std::boxed::Box<i32>;    // in scope 1 at $DIR/uniform_array_move_out.rs:6:14: 6:16
+        let _6: Box<i32>;                // in scope 1 at $DIR/uniform_array_move_out.rs:6:14: 6:16
         scope 2 {
             debug _y => _6;              // in scope 2 at $DIR/uniform_array_move_out.rs:6:14: 6:16
         }

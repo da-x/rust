@@ -12,11 +12,11 @@ LL |                 no_state_here: 0,
 LL |                 no_state_here: 1
    |                 ^^^^^^^^^^^^^^^^ multiple uses of `no_state_here` in pattern
 
-error[E0026]: variant `SimpleEnum::NoState` does not have a field named `state`
+error[E0026]: variant `NoState` does not have a field named `state`
   --> $DIR/issue-51102.rs:33:17
    |
 LL |                 state: 0
-   |                 ^^^^^ variant `SimpleEnum::NoState` does not have this field
+   |                 ^^^^^ variant `NoState` does not have this field
 
 error: aborting due to 3 previous errors
 

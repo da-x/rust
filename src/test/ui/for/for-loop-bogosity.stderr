@@ -4,7 +4,7 @@ error[E0277]: `MyStruct` is not an iterator
 LL |     for x in bogus {
    |              ^^^^^ `MyStruct` is not an iterator
    |
-   = help: the trait `std::iter::Iterator` is not implemented for `MyStruct`
+   = help: the trait `Iterator` is not implemented for `MyStruct`
    = note: required by `std::iter::IntoIterator::into_iter`
 
 error: aborting due to previous error

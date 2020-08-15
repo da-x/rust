@@ -1,7 +1,7 @@
 // MIR for `main::{{closure}}#0` 0 generator_drop
 /* generator_layout = GeneratorLayout {
     field_tys: {
-        _0: std::string::String,
+        _0: String,
     },
     variant_fields: {
         Unresumed(0): [],
@@ -14,20 +14,20 @@
     },
 } */
 
-fn main::{{closure}}#0(_1: *mut [generator@$DIR/generator-drop-cleanup.rs:10:15: 13:6 {std::string::String, ()}]) -> () {
+fn main::{{closure}}#0(_1: *mut [generator@$DIR/generator-drop-cleanup.rs:10:15: 13:6 {String, ()}]) -> () {
     let mut _0: ();                      // return place in scope 0 at $DIR/generator-drop-cleanup.rs:10:15: 13:6
     let mut _2: ();                      // in scope 0 at $DIR/generator-drop-cleanup.rs:10:15: 13:6
-    let _3: std::string::String;         // in scope 0 at $DIR/generator-drop-cleanup.rs:11:13: 11:15
+    let _3: String;                      // in scope 0 at $DIR/generator-drop-cleanup.rs:11:13: 11:15
     let _4: ();                          // in scope 0 at $DIR/generator-drop-cleanup.rs:12:9: 12:14
     let mut _5: ();                      // in scope 0 at $DIR/generator-drop-cleanup.rs:12:9: 12:14
     let mut _7: ();                      // in scope 0 at $DIR/generator-drop-cleanup.rs:10:18: 10:18
     let mut _8: ();                      // in scope 0 at $DIR/generator-drop-cleanup.rs:10:15: 13:6
     let mut _9: u32;                     // in scope 0 at $DIR/generator-drop-cleanup.rs:10:15: 13:6
     scope 1 {
-        debug _s => (((*_1) as variant#3).0: std::string::String); // in scope 1 at $DIR/generator-drop-cleanup.rs:11:13: 11:15
+        debug _s => (((*_1) as variant#3).0: String); // in scope 1 at $DIR/generator-drop-cleanup.rs:11:13: 11:15
     }
     scope 2 {
-        let mut _6: std::vec::Vec<u8>;   // in scope 2 at $DIR/generator-drop-cleanup.rs:11:18: 11:31
+        let mut _6: Vec<u8>;             // in scope 2 at $DIR/generator-drop-cleanup.rs:11:18: 11:31
         scope 3 {
         }
     }
@@ -49,7 +49,7 @@ fn main::{{closure}}#0(_1: *mut [generator@$DIR/generator-drop-cleanup.rs:10:15:
     bb3: {
         StorageDead(_5);                 // scope 1 at $DIR/generator-drop-cleanup.rs:12:13: 12:14
         StorageDead(_4);                 // scope 1 at $DIR/generator-drop-cleanup.rs:12:14: 12:15
-        drop((((*_1) as variant#3).0: std::string::String)) -> [return: bb4, unwind: bb2]; // scope 0 at $DIR/generator-drop-cleanup.rs:13:5: 13:6
+        drop((((*_1) as variant#3).0: String)) -> [return: bb4, unwind: bb2]; // scope 0 at $DIR/generator-drop-cleanup.rs:13:5: 13:6
     }
 
     bb4: {
