@@ -33,13 +33,13 @@
           StorageLive(_3);                 // scope 0 at $DIR/simplify-arm.rs:24:13: 24:15
           StorageLive(_4);                 // scope 0 at $DIR/simplify-arm.rs:24:13: 24:14
           _4 = _1;                         // scope 0 at $DIR/simplify-arm.rs:24:13: 24:14
-          _3 = const <std::result::Result<u8, i32> as std::ops::Try>::into_result(move _4) -> bb1; // scope 0 at $DIR/simplify-arm.rs:24:13: 24:15
+          _3 = const <std::result::Result<u8, i32> as Try>::into_result(move _4) -> bb1; // scope 0 at $DIR/simplify-arm.rs:24:13: 24:15
                                            // ty::Const
-                                           // + ty: fn(std::result::Result<u8, i32>) -> std::result::Result<<std::result::Result<u8, i32> as std::ops::Try>::Ok, <std::result::Result<u8, i32> as std::ops::Try>::Error> {<std::result::Result<u8, i32> as std::ops::Try>::into_result}
+                                           // + ty: fn(std::result::Result<u8, i32>) -> std::result::Result<<std::result::Result<u8, i32> as Try>::Ok, <std::result::Result<u8, i32> as Try>::Error> {<std::result::Result<u8, i32> as Try>::into_result}
                                            // + val: Value(Scalar(<ZST>))
                                            // mir::Constant
                                            // + span: $DIR/simplify-arm.rs:24:13: 24:15
-                                           // + literal: Const { ty: fn(std::result::Result<u8, i32>) -> std::result::Result<<std::result::Result<u8, i32> as std::ops::Try>::Ok, <std::result::Result<u8, i32> as std::ops::Try>::Error> {<std::result::Result<u8, i32> as std::ops::Try>::into_result}, val: Value(Scalar(<ZST>)) }
+                                           // + literal: Const { ty: fn(std::result::Result<u8, i32>) -> std::result::Result<<std::result::Result<u8, i32> as Try>::Ok, <std::result::Result<u8, i32> as Try>::Error> {<std::result::Result<u8, i32> as Try>::into_result}, val: Value(Scalar(<ZST>)) }
       }
   
       bb1: {
@@ -73,13 +73,13 @@
           StorageLive(_8);                 // scope 3 at $DIR/simplify-arm.rs:24:14: 24:15
           StorageLive(_9);                 // scope 3 at $DIR/simplify-arm.rs:24:14: 24:15
           _9 = _6;                         // scope 3 at $DIR/simplify-arm.rs:24:14: 24:15
-          _8 = const <i32 as std::convert::From<i32>>::from(move _9) -> bb6; // scope 3 at $DIR/simplify-arm.rs:24:14: 24:15
+          _8 = const <i32 as From<i32>>::from(move _9) -> bb6; // scope 3 at $DIR/simplify-arm.rs:24:14: 24:15
                                            // ty::Const
-                                           // + ty: fn(i32) -> i32 {<i32 as std::convert::From<i32>>::from}
+                                           // + ty: fn(i32) -> i32 {<i32 as From<i32>>::from}
                                            // + val: Value(Scalar(<ZST>))
                                            // mir::Constant
                                            // + span: $DIR/simplify-arm.rs:24:14: 24:15
-                                           // + literal: Const { ty: fn(i32) -> i32 {<i32 as std::convert::From<i32>>::from}, val: Value(Scalar(<ZST>)) }
+                                           // + literal: Const { ty: fn(i32) -> i32 {<i32 as From<i32>>::from}, val: Value(Scalar(<ZST>)) }
       }
   
       bb5: {
@@ -88,13 +88,13 @@
   
       bb6: {
           StorageDead(_9);                 // scope 3 at $DIR/simplify-arm.rs:24:14: 24:15
-          _0 = const <std::result::Result<u8, i32> as std::ops::Try>::from_error(move _8) -> bb7; // scope 3 at $DIR/simplify-arm.rs:24:14: 24:15
+          _0 = const <std::result::Result<u8, i32> as Try>::from_error(move _8) -> bb7; // scope 3 at $DIR/simplify-arm.rs:24:14: 24:15
                                            // ty::Const
-                                           // + ty: fn(<std::result::Result<u8, i32> as std::ops::Try>::Error) -> std::result::Result<u8, i32> {<std::result::Result<u8, i32> as std::ops::Try>::from_error}
+                                           // + ty: fn(<std::result::Result<u8, i32> as Try>::Error) -> std::result::Result<u8, i32> {<std::result::Result<u8, i32> as Try>::from_error}
                                            // + val: Value(Scalar(<ZST>))
                                            // mir::Constant
                                            // + span: $DIR/simplify-arm.rs:24:13: 24:15
-                                           // + literal: Const { ty: fn(<std::result::Result<u8, i32> as std::ops::Try>::Error) -> std::result::Result<u8, i32> {<std::result::Result<u8, i32> as std::ops::Try>::from_error}, val: Value(Scalar(<ZST>)) }
+                                           // + literal: Const { ty: fn(<std::result::Result<u8, i32> as Try>::Error) -> std::result::Result<u8, i32> {<std::result::Result<u8, i32> as Try>::from_error}, val: Value(Scalar(<ZST>)) }
       }
   
       bb7: {

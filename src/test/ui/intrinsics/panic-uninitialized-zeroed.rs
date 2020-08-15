@@ -98,11 +98,11 @@ fn main() {
 
         test_panic_msg(
             || mem::uninitialized::<*const dyn Send>(),
-            "attempted to leave type `*const dyn std::marker::Send` uninitialized, which is invalid"
+            "attempted to leave type `*const dyn Send` uninitialized, which is invalid"
         );
         test_panic_msg(
             || mem::zeroed::<*const dyn Send>(),
-            "attempted to zero-initialize type `*const dyn std::marker::Send`, which is invalid"
+            "attempted to zero-initialize type `*const dyn Send`, which is invalid"
         );
 
         /* FIXME(#66151) we conservatively do not error here yet.
@@ -149,7 +149,7 @@ fn main() {
         );
         test_panic_msg(
             || mem::uninitialized::<ManuallyDrop<LR>>(),
-            "attempted to leave type `std::mem::ManuallyDrop<LR>` uninitialized, which is invalid"
+            "attempted to leave type `ManuallyDrop<LR>` uninitialized, which is invalid"
         );
 
         // Some things that should work.

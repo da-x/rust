@@ -2,10 +2,10 @@
 
 fn main() -> () {
     let mut _0: ();                      // return place in scope 0 at $DIR/box_expr.rs:6:11: 6:11
-    let _1: std::boxed::Box<S>;          // in scope 0 at $DIR/box_expr.rs:7:9: 7:10
-    let mut _2: std::boxed::Box<S>;      // in scope 0 at $DIR/box_expr.rs:7:13: 7:25
+    let _1: Box<S>;                      // in scope 0 at $DIR/box_expr.rs:7:9: 7:10
+    let mut _2: Box<S>;                  // in scope 0 at $DIR/box_expr.rs:7:13: 7:25
     let _3: ();                          // in scope 0 at $DIR/box_expr.rs:8:5: 8:12
-    let mut _4: std::boxed::Box<S>;      // in scope 0 at $DIR/box_expr.rs:8:10: 8:11
+    let mut _4: Box<S>;                  // in scope 0 at $DIR/box_expr.rs:8:10: 8:11
     scope 1 {
         debug x => _1;                   // in scope 1 at $DIR/box_expr.rs:7:9: 7:10
     }
@@ -41,13 +41,13 @@ fn main() -> () {
         StorageLive(_3);                 // scope 1 at $DIR/box_expr.rs:8:5: 8:12
         StorageLive(_4);                 // scope 1 at $DIR/box_expr.rs:8:10: 8:11
         _4 = move _1;                    // scope 1 at $DIR/box_expr.rs:8:10: 8:11
-        _3 = const std::mem::drop::<std::boxed::Box<S>>(move _4) -> [return: bb5, unwind: bb7]; // scope 1 at $DIR/box_expr.rs:8:5: 8:12
+        _3 = const drop::<Box<S>>(move _4) -> [return: bb5, unwind: bb7]; // scope 1 at $DIR/box_expr.rs:8:5: 8:12
                                          // ty::Const
-                                         // + ty: fn(std::boxed::Box<S>) {std::mem::drop::<std::boxed::Box<S>>}
+                                         // + ty: fn(Box<S>) {drop::<Box<S>>}
                                          // + val: Value(Scalar(<ZST>))
                                          // mir::Constant
                                          // + span: $DIR/box_expr.rs:8:5: 8:9
-                                         // + literal: Const { ty: fn(std::boxed::Box<S>) {std::mem::drop::<std::boxed::Box<S>>}, val: Value(Scalar(<ZST>)) }
+                                         // + literal: Const { ty: fn(Box<S>) {drop::<Box<S>>}, val: Value(Scalar(<ZST>)) }
     }
 
     bb5: {

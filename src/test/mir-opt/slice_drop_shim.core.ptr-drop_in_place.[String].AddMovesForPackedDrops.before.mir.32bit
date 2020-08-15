@@ -1,21 +1,21 @@
-// MIR for `std::intrinsics::drop_in_place` before AddMovesForPackedDrops
+// MIR for `drop_in_place` before AddMovesForPackedDrops
 
-fn std::intrinsics::drop_in_place(_1: *mut [std::string::String]) -> () {
+fn drop_in_place(_1: *mut [String]) -> () {
     let mut _0: ();                      // return place in scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
     let mut _2: usize;                   // in scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
     let mut _3: usize;                   // in scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
     let mut _4: usize;                   // in scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
-    let mut _5: *mut std::string::String; // in scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
+    let mut _5: *mut String;             // in scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
     let mut _6: bool;                    // in scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
-    let mut _7: *mut std::string::String; // in scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
+    let mut _7: *mut String;             // in scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
     let mut _8: bool;                    // in scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
-    let mut _9: *mut std::string::String; // in scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
-    let mut _10: *mut std::string::String; // in scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
-    let mut _11: *mut std::string::String; // in scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
+    let mut _9: *mut String;             // in scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
+    let mut _10: *mut String;            // in scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
+    let mut _11: *mut String;            // in scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
     let mut _12: bool;                   // in scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
-    let mut _13: *mut std::string::String; // in scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
+    let mut _13: *mut String;            // in scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
     let mut _14: bool;                   // in scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
-    let mut _15: *mut [std::string::String]; // in scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
+    let mut _15: *mut [String];          // in scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
 
     bb0: {
         goto -> bb15;                    // scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
@@ -114,7 +114,7 @@ fn std::intrinsics::drop_in_place(_1: *mut [std::string::String]) -> () {
 
     bb13: {
         _15 = &raw mut (*_1);            // scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
-        _9 = move _15 as *mut std::string::String (Misc); // scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
+        _9 = move _15 as *mut String (Misc); // scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
         _10 = Offset(_9, move _3);       // scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
         goto -> bb12;                    // scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
     }
@@ -124,7 +124,7 @@ fn std::intrinsics::drop_in_place(_1: *mut [std::string::String]) -> () {
     }
 
     bb15: {
-        _2 = SizeOf(std::string::String); // scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
+        _2 = SizeOf(String);             // scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
         _3 = Len((*_1));                 // scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
         switchInt(move _2) -> [0_usize: bb8, otherwise: bb14]; // scope 0 at $SRC_DIR/core/src/ptr/mod.rs:LL:COL
     }

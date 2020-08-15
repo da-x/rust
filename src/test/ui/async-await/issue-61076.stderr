@@ -1,16 +1,16 @@
-error[E0277]: the `?` operator can only be applied to values that implement `std::ops::Try`
+error[E0277]: the `?` operator can only be applied to values that implement `Try`
   --> $DIR/issue-61076.rs:22:5
    |
 LL |     foo()?;
    |     ^^^^^^
    |     |
-   |     the `?` operator cannot be applied to type `impl std::future::Future`
+   |     the `?` operator cannot be applied to type `impl Future`
    |     help: consider using `.await` here: `foo().await?`
    |
-   = help: the trait `std::ops::Try` is not implemented for `impl std::future::Future`
+   = help: the trait `Try` is not implemented for `impl Future`
    = note: required by `std::ops::Try::into_result`
 
-error[E0277]: the `?` operator can only be applied to values that implement `std::ops::Try`
+error[E0277]: the `?` operator can only be applied to values that implement `Try`
   --> $DIR/issue-61076.rs:28:5
    |
 LL |     t?;
@@ -19,7 +19,7 @@ LL |     t?;
    |     the `?` operator cannot be applied to type `T`
    |     help: consider using `.await` here: `t.await?`
    |
-   = help: the trait `std::ops::Try` is not implemented for `T`
+   = help: the trait `Try` is not implemented for `T`
    = note: required by `std::ops::Try::into_result`
 
 error: aborting due to 2 previous errors

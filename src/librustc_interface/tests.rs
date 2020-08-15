@@ -468,6 +468,7 @@ fn test_debugging_options_tracking_hash() {
     untracked!(borrowck_stats, true);
     untracked!(deduplicate_diagnostics, true);
     untracked!(dep_tasks, true);
+    untracked!(disable_unique_symbols, true);
     untracked!(dont_buffer_diagnostics, true);
     untracked!(dump_dep_graph, true);
     untracked!(dump_mir, Some(String::from("abc")));

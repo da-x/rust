@@ -3,9 +3,9 @@
 fn full_tested_match2() -> () {
     let mut _0: ();                      // return place in scope 0 at $DIR/match_false_edges.rs:25:29: 25:29
     let mut _1: (i32, i32);              // in scope 0 at $DIR/match_false_edges.rs:26:13: 30:6
-    let mut _2: std::option::Option<i32>; // in scope 0 at $DIR/match_false_edges.rs:26:19: 26:27
+    let mut _2: Option<i32>;             // in scope 0 at $DIR/match_false_edges.rs:26:19: 26:27
     let mut _3: isize;                   // in scope 0 at $DIR/match_false_edges.rs:27:9: 27:16
-    let mut _4: &std::option::Option<i32>; // in scope 0 at $DIR/match_false_edges.rs:26:19: 26:27
+    let mut _4: &Option<i32>;            // in scope 0 at $DIR/match_false_edges.rs:26:19: 26:27
     let _5: i32;                         // in scope 0 at $DIR/match_false_edges.rs:27:14: 27:15
     let _6: &i32;                        // in scope 0 at $DIR/match_false_edges.rs:27:14: 27:15
     let mut _7: bool;                    // in scope 0 at $DIR/match_false_edges.rs:27:20: 27:27
@@ -25,7 +25,7 @@ fn full_tested_match2() -> () {
     bb0: {
         StorageLive(_1);                 // scope 0 at $DIR/match_false_edges.rs:26:13: 30:6
         StorageLive(_2);                 // scope 0 at $DIR/match_false_edges.rs:26:19: 26:27
-        _2 = std::option::Option::<i32>::Some(const 42_i32); // scope 0 at $DIR/match_false_edges.rs:26:19: 26:27
+        _2 = Option::<i32>::Some(const 42_i32); // scope 0 at $DIR/match_false_edges.rs:26:19: 26:27
                                          // ty::Const
                                          // + ty: i32
                                          // + val: Value(Scalar(0x0000002a))

@@ -823,6 +823,8 @@ options! {DebuggingOptions, DebuggingSetter, basic_debugging_options,
     dep_tasks: bool = (false, parse_bool, [UNTRACKED],
         "print tasks that execute and the color their dep node gets (requires debug build) \
         (default: no)"),
+    disable_unique_symbols: bool = (false, parse_bool, [UNTRACKED],
+        "in diagnostics, disable shortening of paths to unique symbols"),
     dont_buffer_diagnostics: bool = (false, parse_bool, [UNTRACKED],
         "emit diagnostics rather than buffering (breaks NLL error downgrading, sorting) \
         (default: no)"),

@@ -934,6 +934,10 @@ pub struct GlobalCtxt<'tcx> {
 
     maybe_unused_trait_imports: FxHashSet<LocalDefId>,
     maybe_unused_extern_crates: Vec<(LocalDefId, Span)>,
+
+    /// Names that uniquely identify an importable definition.
+    pub unique_symbols: FxHashMap<DefId, Symbol>,
+
     /// A map of glob use to a set of names it actually imports. Currently only
     /// used in save-analysis.
     glob_map: FxHashMap<LocalDefId, FxHashSet<Symbol>>,
@@ -1138,6 +1142,7 @@ impl<'tcx> TyCtxt<'tcx> {
             export_map: resolutions.export_map,
             maybe_unused_trait_imports: resolutions.maybe_unused_trait_imports,
             maybe_unused_extern_crates: resolutions.maybe_unused_extern_crates,
+            unique_symbols: resolutions.unique_symbols,
             glob_map: resolutions.glob_map,
             extern_prelude: resolutions.extern_prelude,
             untracked_crate: krate,
