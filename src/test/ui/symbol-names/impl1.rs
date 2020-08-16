@@ -21,8 +21,8 @@ mod foo {
             //[v0]~| ERROR demangling(<impl1[317d481089b8c8fe]::foo::Foo>::bar)
             //[v0]~| ERROR demangling-alt(<impl1::foo::Foo>::bar)
         #[rustc_def_path]
-        //[legacy]~^ ERROR def-path(foo::Foo::bar)
-           //[v0]~^^ ERROR def-path(foo::Foo::bar)
+        //[legacy]~^ ERROR def-path(Foo::bar)
+           //[v0]~^^ ERROR def-path(Foo::bar)
         fn bar() { }
     }
 }
@@ -39,8 +39,8 @@ mod bar {
             //[v0]~| ERROR demangling(<impl1[317d481089b8c8fe]::foo::Foo>::baz)
             //[v0]~| ERROR demangling-alt(<impl1::foo::Foo>::baz)
         #[rustc_def_path]
-        //[legacy]~^ ERROR def-path(bar::<impl foo::Foo>::baz)
-           //[v0]~^^ ERROR def-path(bar::<impl foo::Foo>::baz)
+        //[legacy]~^ ERROR def-path(bar::<impl Foo>::baz)
+           //[v0]~^^ ERROR def-path(bar::<impl Foo>::baz)
         fn baz() { }
     }
 }

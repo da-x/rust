@@ -12,5 +12,5 @@ fn main() {
 }
 //~^^^ ERROR `Foo` doesn't implement `Debug`
 //~| ERROR `Bar` doesn't implement `Debug`
-//~^^^^ ERROR `Foo` doesn't implement `std::fmt::Display`
-//~| ERROR `Bar` doesn't implement `std::fmt::Display`
+//~^^^^ ERROR `Foo` doesn't implement `Display`
+//~| ERROR `Bar` doesn't implement `Display`

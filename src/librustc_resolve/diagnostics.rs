@@ -987,29 +987,69 @@ impl<'a> Resolver<'a> {
     /// This has wide implications on error messages with types, for example, shortening
     /// `std::vec::Vec` to just `Vec`, as long as there is no other `Vec` importable anywhere.
     ///
-    /// The implementation uses similar import discovery logic to that of 'use' suggestions.
+    /// The implementation uses similar import discovery logic to that of 'use' suggestions, and
+    /// there are a few aspects to how this is done:
+    ///
+    /// * Ignore type aliases. This allows `std::result::Result` to compete over the
+    ///   `std::io::Result` alias.
+    /// * Separate uniqueness for trait symbols and type symbols. This sorts out an overlap between
+    ///   `std::fmt::Display` and `std::path::Display`, for instance.
+    /// * Skip Variant types. Othersize, it can pick up `core::num::flt2dev::Part::Copy` as collsion
+    ///   with `std::marker::Copy`. It also makes sense, as users cannot specifically import this
+    ///   into the Type namespace (rather than the Value namespace).
+    /// * Disambiguate module names having the same name as functions.
     pub fn find_unique_symbols(&mut self) {
         if self.session.opts.debugging_opts.disable_unique_symbols {
             return;
         }
 
-        let unique_symbols: &mut FxHashMap<(Namespace, Symbol), Option<DefId>> =
+        #[derive(Hash, Eq, PartialEq, Copy, Clone)]
+        enum Kind {
+            Value,
+            Type,
+            Trait,
+            Macro,
+        };
+
+        let unique_symbols: &mut FxHashMap<(Kind, Symbol), Option<DefId>> =
             &mut FxHashMap::default();
 
         for symbol_set in self.glob_map.values() {
             for symbol in symbol_set {
-                unique_symbols.insert((Namespace::TypeNS, *symbol), None);
-                unique_symbols.insert((Namespace::ValueNS, *symbol), None);
-                unique_symbols.insert((Namespace::MacroNS, *symbol), None);
+                unique_symbols.insert((Kind::Value, *symbol), None);
+                unique_symbols.insert((Kind::Type, *symbol), None);
+                unique_symbols.insert((Kind::Trait, *symbol), None);
+                unique_symbols.insert((Kind::Macro, *symbol), None);
             }
         }
 
         self.for_all_accessible_imports(|ident, ns, name_binding| {
+            let kind = match ns {
+                Namespace::TypeNS => {
+                    if name_binding.is_variant() {
+                        // We only care about the ValueNS defs of variants.
+                        return;
+                    }
+
+                    match name_binding.res() {
+                        Res::Def(DefKind::Trait, _) => Kind::Trait,
+                        Res::Def(DefKind::Mod, _) => Kind::Value,
+                        Res::Def(DefKind::TyAlias, _) => {
+                            // Ignore type aliases
+                            return;
+                        }
+                        _ => Kind::Type,
+                    }
+                }
+                Namespace::MacroNS => Kind::Macro,
+                Namespace::ValueNS => Kind::Value,
+            };
+
             use std::collections::hash_map::Entry::{Occupied, Vacant};
 
             match name_binding.res().opt_def_id() {
                 None => {}
-                Some(def_id) => match unique_symbols.entry((ns, ident.name)) {
+                Some(def_id) => match unique_symbols.entry((kind, ident.name)) {
                     Occupied(mut v) => match v.get() {
                         None => {}
                         Some(existing) => {

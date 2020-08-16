@@ -1,11 +1,11 @@
 - // MIR for `float_to_exponential_common` before ConstProp
 + // MIR for `float_to_exponential_common` after ConstProp
   
-  fn float_to_exponential_common(_1: &mut Formatter, _2: &T, _3: bool) -> std::result::Result<(), std::fmt::Error> {
+  fn float_to_exponential_common(_1: &mut Formatter, _2: &T, _3: bool) -> Result<(), std::fmt::Error> {
       debug fmt => _1;                     // in scope 0 at $DIR/funky_arms.rs:11:35: 11:38
       debug num => _2;                     // in scope 0 at $DIR/funky_arms.rs:11:60: 11:63
       debug upper => _3;                   // in scope 0 at $DIR/funky_arms.rs:11:69: 11:74
-      let mut _0: std::result::Result<(), std::fmt::Error>; // return place in scope 0 at $DIR/funky_arms.rs:11:85: 11:91
+      let mut _0: Result<(), std::fmt::Error>; // return place in scope 0 at $DIR/funky_arms.rs:11:85: 11:91
       let _4: bool;                        // in scope 0 at $DIR/funky_arms.rs:15:9: 15:19
       let mut _5: &Formatter;              // in scope 0 at $DIR/funky_arms.rs:15:22: 15:25
       let mut _7: Option<usize>;           // in scope 0 at $DIR/funky_arms.rs:24:30: 24:45
@@ -93,11 +93,11 @@
           _21 = _3;                        // scope 2 at $DIR/funky_arms.rs:28:62: 28:67
           _0 = const float_to_exponential_common_shortest::<T>(move _18, move _19, move _20, move _21) -> bb9; // scope 2 at $DIR/funky_arms.rs:28:9: 28:68
                                            // ty::Const
-                                           // + ty: for<'r, 's, 't0> fn(&'r mut Formatter<'s>, &'t0 T, core::num::flt2dec::Sign, bool) -> std::result::Result<(), std::fmt::Error> {float_to_exponential_common_shortest::<T>}
+                                           // + ty: for<'r, 's, 't0> fn(&'r mut Formatter<'s>, &'t0 T, core::num::flt2dec::Sign, bool) -> Result<(), std::fmt::Error> {float_to_exponential_common_shortest::<T>}
                                            // + val: Value(Scalar(<ZST>))
                                            // mir::Constant
                                            // + span: $DIR/funky_arms.rs:28:9: 28:45
-                                           // + literal: Const { ty: for<'r, 's, 't0> fn(&'r mut Formatter<'s>, &'t0 T, core::num::flt2dec::Sign, bool) -> std::result::Result<(), std::fmt::Error> {float_to_exponential_common_shortest::<T>}, val: Value(Scalar(<ZST>)) }
+                                           // + literal: Const { ty: for<'r, 's, 't0> fn(&'r mut Formatter<'s>, &'t0 T, core::num::flt2dec::Sign, bool) -> Result<(), std::fmt::Error> {float_to_exponential_common_shortest::<T>}, val: Value(Scalar(<ZST>)) }
       }
   
       bb7: {
@@ -127,11 +127,11 @@
           _17 = _3;                        // scope 3 at $DIR/funky_arms.rs:26:81: 26:86
           _0 = const float_to_exponential_common_exact::<T>(move _11, move _12, move _13, move _14, move _17) -> bb8; // scope 3 at $DIR/funky_arms.rs:26:9: 26:87
                                            // ty::Const
-                                           // + ty: for<'r, 's, 't0> fn(&'r mut Formatter<'s>, &'t0 T, core::num::flt2dec::Sign, u32, bool) -> std::result::Result<(), std::fmt::Error> {float_to_exponential_common_exact::<T>}
+                                           // + ty: for<'r, 's, 't0> fn(&'r mut Formatter<'s>, &'t0 T, core::num::flt2dec::Sign, u32, bool) -> Result<(), std::fmt::Error> {float_to_exponential_common_exact::<T>}
                                            // + val: Value(Scalar(<ZST>))
                                            // mir::Constant
                                            // + span: $DIR/funky_arms.rs:26:9: 26:42
-                                           // + literal: Const { ty: for<'r, 's, 't0> fn(&'r mut Formatter<'s>, &'t0 T, core::num::flt2dec::Sign, u32, bool) -> std::result::Result<(), std::fmt::Error> {float_to_exponential_common_exact::<T>}, val: Value(Scalar(<ZST>)) }
+                                           // + literal: Const { ty: for<'r, 's, 't0> fn(&'r mut Formatter<'s>, &'t0 T, core::num::flt2dec::Sign, u32, bool) -> Result<(), std::fmt::Error> {float_to_exponential_common_exact::<T>}, val: Value(Scalar(<ZST>)) }
       }
   
       bb8: {

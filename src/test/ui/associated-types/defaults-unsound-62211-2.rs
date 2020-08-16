@@ -26,7 +26,7 @@ trait UncheckedCopy: Sized {
     //~^ ERROR cannot add-assign `&'static str` to `Self`
     + From<Self>
     + Display = Self;
-    //~^ ERROR `Self` doesn't implement `std::fmt::Display`
+    //~^ ERROR `Self` doesn't implement `Display`
 
     // We said the Output type was Copy, so we can Copy it freely!
     fn unchecked_copy(other: &Self::Output) -> Self::Output {
@@ -39,7 +39,7 @@ trait UncheckedCopy: Sized {
 }
 
 impl<T> UncheckedCopy for T {}
-//~^ ERROR `T` doesn't implement `std::fmt::Display`
+//~^ ERROR `T` doesn't implement `Display`
 //~| ERROR the trait bound `T: Deref` is not satisfied
 //~| ERROR cannot add-assign `&'static str` to `T`
 //~| ERROR the trait bound `T: Copy` is not satisfied

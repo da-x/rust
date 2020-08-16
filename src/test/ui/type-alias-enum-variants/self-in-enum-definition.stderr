@@ -1,21 +1,21 @@
-error[E0391]: cycle detected when const-evaluating + checking `V3::{{constant}}#0`
+error[E0391]: cycle detected when const-evaluating + checking `Alpha::V3::{{constant}}#0`
   --> $DIR/self-in-enum-definition.rs:5:10
    |
 LL |     V3 = Self::V1 {} as u8 + 2,
    |          ^^^^^^^^
    |
-note: ...which requires const-evaluating + checking `V3::{{constant}}#0`...
+note: ...which requires const-evaluating + checking `Alpha::V3::{{constant}}#0`...
   --> $DIR/self-in-enum-definition.rs:5:10
    |
 LL |     V3 = Self::V1 {} as u8 + 2,
    |          ^^^^^^^^
-note: ...which requires const-evaluating `V3::{{constant}}#0`...
+note: ...which requires const-evaluating `Alpha::V3::{{constant}}#0`...
   --> $DIR/self-in-enum-definition.rs:5:10
    |
 LL |     V3 = Self::V1 {} as u8 + 2,
    |          ^^^^^^^^
    = note: ...which requires computing layout of `Alpha`...
-   = note: ...which again requires const-evaluating + checking `V3::{{constant}}#0`, completing the cycle
+   = note: ...which again requires const-evaluating + checking `Alpha::V3::{{constant}}#0`, completing the cycle
 note: cycle used when collecting item types in top-level module
   --> $DIR/self-in-enum-definition.rs:1:1
    |

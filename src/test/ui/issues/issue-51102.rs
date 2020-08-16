@@ -31,7 +31,7 @@ fn main() {
         match simple {
             SimpleEnum::NoState {
                 state: 0
-                //~^ ERROR variant `NoState` does not have a field named `state` [E0026]
+                //~^ ERROR variant `SimpleEnum::NoState` does not have a field named `state` [E0026]
             } => (),
         }
     };

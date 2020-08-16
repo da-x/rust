@@ -16,7 +16,7 @@ fn main() {
     //~^ ERROR `std::rc::Weak<i32>` cannot be shared between threads safely [E0277]
 
     test::<Receiver<i32>>();
-    //~^ ERROR `std::sync::mpsc::Receiver<i32>` cannot be shared between threads safely [E0277]
+    //~^ ERROR `Receiver<i32>` cannot be shared between threads safely [E0277]
     test::<Sender<i32>>();
     //~^ ERROR `Sender<i32>` cannot be shared between threads safely [E0277]
 }

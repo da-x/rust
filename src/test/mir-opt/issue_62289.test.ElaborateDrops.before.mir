@@ -4,7 +4,7 @@ fn test() -> Option<Box<u32>> {
     let mut _0: Option<Box<u32>>;        // return place in scope 0 at $DIR/issue-62289.rs:8:14: 8:30
     let mut _1: Box<u32>;                // in scope 0 at $DIR/issue-62289.rs:9:10: 9:21
     let mut _2: Box<u32>;                // in scope 0 at $DIR/issue-62289.rs:9:10: 9:21
-    let mut _3: std::result::Result<u32, NoneError>; // in scope 0 at $DIR/issue-62289.rs:9:15: 9:20
+    let mut _3: Result<u32, NoneError>;  // in scope 0 at $DIR/issue-62289.rs:9:15: 9:20
     let mut _4: Option<u32>;             // in scope 0 at $DIR/issue-62289.rs:9:15: 9:19
     let mut _5: isize;                   // in scope 0 at $DIR/issue-62289.rs:9:19: 9:20
     let _6: NoneError;                   // in scope 0 at $DIR/issue-62289.rs:9:19: 9:20
@@ -32,11 +32,11 @@ fn test() -> Option<Box<u32>> {
         _4 = Option::<u32>::None;        // scope 0 at $DIR/issue-62289.rs:9:15: 9:19
         _3 = const <Option<u32> as Try>::into_result(move _4) -> [return: bb2, unwind: bb3]; // scope 0 at $DIR/issue-62289.rs:9:15: 9:20
                                          // ty::Const
-                                         // + ty: fn(Option<u32>) -> std::result::Result<<Option<u32> as Try>::Ok, <Option<u32> as Try>::Error> {<Option<u32> as Try>::into_result}
+                                         // + ty: fn(Option<u32>) -> Result<<Option<u32> as Try>::Ok, <Option<u32> as Try>::Error> {<Option<u32> as Try>::into_result}
                                          // + val: Value(Scalar(<ZST>))
                                          // mir::Constant
                                          // + span: $DIR/issue-62289.rs:9:15: 9:20
-                                         // + literal: Const { ty: fn(Option<u32>) -> std::result::Result<<Option<u32> as Try>::Ok, <Option<u32> as Try>::Error> {<Option<u32> as Try>::into_result}, val: Value(Scalar(<ZST>)) }
+                                         // + literal: Const { ty: fn(Option<u32>) -> Result<<Option<u32> as Try>::Ok, <Option<u32> as Try>::Error> {<Option<u32> as Try>::into_result}, val: Value(Scalar(<ZST>)) }
     }
 
     bb1 (cleanup): {

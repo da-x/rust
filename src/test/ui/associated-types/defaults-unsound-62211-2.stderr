@@ -40,7 +40,7 @@ help: consider further restricting `Self`
 LL | trait UncheckedCopy: Sized + Deref {
    |                            ^^^^^^^
 
-error[E0277]: `Self` doesn't implement `std::fmt::Display`
+error[E0277]: `Self` doesn't implement `Display`
   --> $DIR/defaults-unsound-62211-2.rs:28:7
    |
 LL | trait UncheckedCopy: Sized {
@@ -52,10 +52,10 @@ LL |     + Display = Self;
    = note: in format strings you may be able to use `{:?}` (or {:#?} for pretty-print) instead
 help: consider further restricting `Self`
    |
-LL | trait UncheckedCopy: Sized + std::fmt::Display {
-   |                            ^^^^^^^^^^^^^^^^^^^
+LL | trait UncheckedCopy: Sized + Display {
+   |                            ^^^^^^^^^
 
-error[E0277]: `T` doesn't implement `std::fmt::Display`
+error[E0277]: `T` doesn't implement `Display`
   --> $DIR/defaults-unsound-62211-2.rs:41:9
    |
 LL | trait UncheckedCopy: Sized {
@@ -70,8 +70,8 @@ LL | impl<T> UncheckedCopy for T {}
    = note: in format strings you may be able to use `{:?}` (or {:#?} for pretty-print) instead
 help: consider restricting type parameter `T`
    |
-LL | impl<T: std::fmt::Display> UncheckedCopy for T {}
-   |       ^^^^^^^^^^^^^^^^^^^
+LL | impl<T: Display> UncheckedCopy for T {}
+   |       ^^^^^^^^^
 
 error[E0277]: the trait bound `T: Deref` is not satisfied
   --> $DIR/defaults-unsound-62211-2.rs:41:9

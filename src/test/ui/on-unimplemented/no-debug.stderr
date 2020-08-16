@@ -19,24 +19,24 @@ LL |     println!("{:?} {:?}", Foo, Bar);
    = note: required by `std::fmt::Debug::fmt`
    = note: this error originates in a macro (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error[E0277]: `Foo` doesn't implement `std::fmt::Display`
+error[E0277]: `Foo` doesn't implement `Display`
   --> $DIR/no-debug.rs:11:23
    |
 LL |     println!("{} {}", Foo, Bar);
    |                       ^^^ `Foo` cannot be formatted with the default formatter
    |
-   = help: the trait `std::fmt::Display` is not implemented for `Foo`
+   = help: the trait `Display` is not implemented for `Foo`
    = note: in format strings you may be able to use `{:?}` (or {:#?} for pretty-print) instead
    = note: required by `std::fmt::Display::fmt`
    = note: this error originates in a macro (in Nightly builds, run with -Z macro-backtrace for more info)
 
-error[E0277]: `Bar` doesn't implement `std::fmt::Display`
+error[E0277]: `Bar` doesn't implement `Display`
   --> $DIR/no-debug.rs:11:28
    |
 LL |     println!("{} {}", Foo, Bar);
    |                            ^^^ `Bar` cannot be formatted with the default formatter
    |
-   = help: the trait `std::fmt::Display` is not implemented for `Bar`
+   = help: the trait `Display` is not implemented for `Bar`
    = note: in format strings you may be able to use `{:?}` (or {:#?} for pretty-print) instead
    = note: required by `std::fmt::Display::fmt`
    = note: this error originates in a macro (in Nightly builds, run with -Z macro-backtrace for more info)

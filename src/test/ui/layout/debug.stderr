@@ -190,7 +190,7 @@ error: layout_of(U) = Layout {
 LL | union U { f1: (i32, i32), f3: i32 }
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-error: layout_of(std::result::Result<i32, i32>) = Layout {
+error: layout_of(Result<i32, i32>) = Layout {
     fields: Arbitrary {
         offsets: [
             Size {

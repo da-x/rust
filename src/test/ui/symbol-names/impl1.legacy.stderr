@@ -16,7 +16,7 @@ error: demangling-alt(impl1::foo::Foo::bar)
 LL |         #[rustc_symbol_name]
    |         ^^^^^^^^^^^^^^^^^^^^
 
-error: def-path(foo::Foo::bar)
+error: def-path(Foo::bar)
   --> $DIR/impl1.rs:23:9
    |
 LL |         #[rustc_def_path]
@@ -40,7 +40,7 @@ error: demangling-alt(impl1::bar::<impl impl1::foo::Foo>::baz)
 LL |         #[rustc_symbol_name]
    |         ^^^^^^^^^^^^^^^^^^^^
 
-error: def-path(bar::<impl foo::Foo>::baz)
+error: def-path(bar::<impl Foo>::baz)
   --> $DIR/impl1.rs:41:9
    |
 LL |         #[rustc_def_path]
