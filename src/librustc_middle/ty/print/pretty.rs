@@ -249,7 +249,7 @@ pub trait PrettyPrinter<'tcx>:
         mut self,
         def_id: DefId,
     ) -> Result<(Self::Path, bool), Self::Error> {
-        match self.tcx().unique_symbols.get(&def_id) {
+        match self.tcx().unique_symbols_map(LOCAL_CRATE).get(&def_id) {
             None => return Ok((self, false)),
             Some(symbol) => {
                 self.write_str(&symbol.as_str())?;

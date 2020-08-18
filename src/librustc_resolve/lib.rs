@@ -922,8 +922,8 @@ pub struct Resolver<'a> {
     maybe_unused_trait_imports: FxHashSet<LocalDefId>,
     maybe_unused_extern_crates: Vec<(LocalDefId, Span)>,
 
-    /// Names that uniquely identify an importable definition.
-    unique_symbols: FxHashMap<DefId, Symbol>,
+    /// Names that uniquely identify an exportable definition.
+    unique_symbols: FxHashMap<(Namespace, Symbol), DefId>,
 
     /// Privacy errors are delayed until the end in order to deduplicate them.
     privacy_errors: Vec<PrivacyError<'a>>,
@@ -3248,4 +3248,5 @@ impl CrateLint {
 
 pub fn provide(providers: &mut Providers) {
     late::lifetimes::provide(providers);
+    diagnostics::provide(providers);
 }

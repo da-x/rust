@@ -9,10 +9,9 @@ use rustc_errors::{struct_span_err, Applicability, DiagnosticBuilder};
 use rustc_feature::BUILTIN_ATTRIBUTES;
 use rustc_hir::def::Namespace::{self, *};
 use rustc_hir::def::{self, CtorKind, CtorOf, DefKind, NonMacroAttrKind};
-use rustc_hir::def_id::{DefId, CRATE_DEF_INDEX, LOCAL_CRATE};
+use rustc_hir::def_id::{DefId, CRATE_DEF_INDEX, LOCAL_CRATE, CrateNum};
 use rustc_middle::bug;
-use rustc_middle::middle::cstore::CrateStore;
-use rustc_middle::ty::{self, DefIdTree};
+use rustc_middle::ty::{self, DefIdTree, TyCtxt};
 use rustc_session::Session;
 use rustc_span::hygiene::MacroKind;
 use rustc_span::source_map::SourceMap;
@@ -906,17 +905,17 @@ impl<'a> Resolver<'a> {
         suggestions
     }
 
-    fn for_all_module_accessible_imports(
+    /// This is similar to `lookup_import_candidates`, but for a wider collection of information
+    /// oriented from root scope.
+    crate fn for_all_accessible_imports(
         &mut self,
-        start_module: Module<'a>,
-        local_module: bool,
-        seen_modules: &mut FxHashSet<DefId>,
         mut collect_fn: impl for<'b> FnMut(&'b Ident, Namespace, &'b NameBinding<'a>),
     ) {
-        let mut worklist = vec![(start_module, true, !local_module)];
         let root_scope = ParentScope::module(self.graph_root);
+        let mut worklist = vec![(self.graph_root, true)];
+        let mut seen_modules = FxHashSet::default();
 
-        while let Some((in_module, accessible, in_module_is_extern)) = worklist.pop() {
+        while let Some((in_module, accessible)) = worklist.pop() {
             in_module.for_each_child(self, |this, ident, ns, name_binding| {
                 // avoid non-importable candidates
                 if !name_binding.is_importable() {
@@ -927,7 +926,7 @@ impl<'a> Resolver<'a> {
                     accessible && this.is_accessible_from(name_binding.vis, root_scope.module);
 
                 // do not venture inside inaccessible items of other crates
-                if in_module_is_extern && !child_accessible {
+                if !child_accessible {
                     return;
                 }
 
@@ -935,44 +934,14 @@ impl<'a> Resolver<'a> {
 
                 // collect submodules to explore
                 if let Some(module) = name_binding.module() {
-                    let is_extern_crate_that_also_appears_in_prelude =
-                        name_binding.is_extern_crate() && this.session.rust_2018();
-                    if !is_extern_crate_that_also_appears_in_prelude {
-                        let is_extern = in_module_is_extern || name_binding.is_extern_crate();
+                    if !name_binding.is_extern_crate() {
                         // add the module to the lookup
                         if seen_modules.insert(module.def_id().unwrap()) {
-                            worklist.push((module, child_accessible, is_extern));
+                            worklist.push((module, child_accessible));
                         }
                     }
                 }
             })
-        }
-    }
-
-    /// This is similar to `lookup_import_candidates`, but for a wider collection of information
-    /// oriented from root scope.
-    crate fn for_all_accessible_imports(
-        &mut self,
-        mut collect_fn: impl for<'b> FnMut(&'b Ident, Namespace, &'b NameBinding<'a>),
-    ) {
-        let mut seen_modules = FxHashSet::default();
-        self.for_all_module_accessible_imports(
-            self.graph_root,
-            true,
-            &mut seen_modules,
-            &mut collect_fn,
-        );
-
-        if self.session.rust_2018() {
-            for crate_id in self.cstore().crates_untracked() {
-                let crate_root = self.get_module(DefId { krate: crate_id, index: CRATE_DEF_INDEX });
-                self.for_all_module_accessible_imports(
-                    crate_root,
-                    false,
-                    &mut seen_modules,
-                    &mut collect_fn,
-                );
-            }
         }
     }
 
@@ -1025,9 +994,9 @@ impl<'a> Resolver<'a> {
             }
         });
 
-        for ((_, symbol), opt_def_id) in unique_symbols.drain() {
+        for ((ns, symbol), opt_def_id) in unique_symbols.drain() {
             if let Some(def_id) = opt_def_id {
-                self.unique_symbols.insert(def_id, symbol);
+                self.unique_symbols.insert((ns, symbol), def_id);
             }
         }
     }
@@ -1802,4 +1771,44 @@ crate fn show_candidates(
 
         err.note(&msg);
     }
+}
+
+fn unique_symbols_map(tcx: TyCtxt<'_>, crate_num: CrateNum) -> FxHashMap<DefId, Symbol> {
+    assert_eq!(crate_num, LOCAL_CRATE);
+
+    let map = FxHashMap::default();
+
+    if tcx.sess.opts.debugging_opts.disable_unique_symbols {
+        return map;
+    }
+
+    // TODO: consider the current crate's unique symbols
+
+    // Now onto the crates that we can import from:
+    for &cnum in tcx.crates().iter().chain(std::iter::once(&LOCAL_CRATE)) {
+         let def_id = DefId { krate: cnum, index: CRATE_DEF_INDEX };
+
+        // Ignore crates that are not direct dependencies.
+        match tcx.extern_crate(def_id) {
+            None => continue,
+            Some(extern_crate) => {
+                if !extern_crate.is_direct() {
+                    continue;
+                }
+            }
+        }
+
+        // TODO!
+        //
+        // for (namespace_symbol, &def_id) in tcx.exported_unique_symbols(cnum).iter() {
+        // }
+    }
+
+    // collector
+
+    map
+}
+
+pub fn provide(providers: &mut ty::query::Providers) {
+    *providers = ty::query::Providers { unique_symbols_map, ..*providers };
 }

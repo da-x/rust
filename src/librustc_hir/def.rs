@@ -5,6 +5,7 @@ use rustc_ast::ast;
 use rustc_ast::ast::NodeId;
 use rustc_macros::HashStable_Generic;
 use rustc_span::hygiene::MacroKind;
+use rustc_span::{symbol::SymbolStr, Symbol};
 
 use std::fmt::Debug;
 
@@ -262,7 +263,7 @@ impl PartialRes {
 /// Different kinds of symbols don't influence each other.
 ///
 /// Therefore, they have a separate universe (namespace).
-#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Encodable, Decodable)]
 pub enum Namespace {
     TypeNS,
     ValueNS,
@@ -276,6 +277,20 @@ impl Namespace {
             Self::ValueNS => "value",
             Self::MacroNS => "macro",
         }
+    }
+}
+
+use rustc_data_structures::stable_hasher::ToStableHashKey;
+
+#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug, Encodable, Decodable)]
+pub struct NamespaceSymbol(pub Namespace, pub Symbol);
+
+impl<HCX> ToStableHashKey<HCX> for NamespaceSymbol {
+    type KeyType = (&'static str, SymbolStr);
+
+    #[inline]
+    fn to_stable_hash_key(&self, _: &HCX) -> (&'static str, SymbolStr) {
+        (self.0.descr(), self.1.as_str())
     }
 }
 

@@ -1245,6 +1245,15 @@ rustc_queries! {
             storage(ArenaCacheSelector<'tcx>)
             desc { "calculating the visible parent map" }
         }
+        query unique_symbols_map(_: CrateNum)
+            -> FxHashMap<DefId, Symbol> {
+            storage(ArenaCacheSelector<'tcx>)
+            desc { "calculating the unique symbols map" }
+        }
+        query exported_unique_symbols(_: CrateNum) -> FxHashMap<NamespaceSymbol, DefId> {
+            storage(ArenaCacheSelector<'tcx>)
+            desc { "calculating the exported unique symbols  items map in a crate" }
+        }
         query missing_extern_crate_item(_: CrateNum) -> bool {
             eval_always
             desc { "seeing if we're missing an `extern crate` item for this crate" }

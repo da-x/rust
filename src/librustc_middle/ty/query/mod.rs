@@ -40,7 +40,7 @@ use rustc_data_structures::svh::Svh;
 use rustc_data_structures::sync::Lrc;
 use rustc_errors::ErrorReported;
 use rustc_hir as hir;
-use rustc_hir::def::DefKind;
+use rustc_hir::def::{NamespaceSymbol, DefKind};
 use rustc_hir::def_id::{CrateNum, DefId, DefIdMap, DefIdSet, LocalDefId};
 use rustc_hir::lang_items::{LangItem, LanguageItems};
 use rustc_hir::{Crate, HirIdSet, ItemLocalId, TraitCandidate};

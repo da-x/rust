@@ -35,7 +35,7 @@ use rustc_data_structures::stable_hasher::{
 use rustc_data_structures::sync::{self, Lock, Lrc, WorkerLocal};
 use rustc_errors::ErrorReported;
 use rustc_hir as hir;
-use rustc_hir::def::{DefKind, Res};
+use rustc_hir::def::{DefKind, Res, Namespace};
 use rustc_hir::def_id::{CrateNum, DefId, DefIdMap, LocalDefId, LOCAL_CRATE};
 use rustc_hir::definitions::{DefPathHash, Definitions};
 use rustc_hir::intravisit::Visitor;
@@ -935,8 +935,8 @@ pub struct GlobalCtxt<'tcx> {
     maybe_unused_trait_imports: FxHashSet<LocalDefId>,
     maybe_unused_extern_crates: Vec<(LocalDefId, Span)>,
 
-    /// Names that uniquely identify an importable definition.
-    pub unique_symbols: FxHashMap<DefId, Symbol>,
+    /// Names that uniquely identify an exportable definition.
+    pub exported_unique_symbols: FxHashMap<(Namespace, Symbol), DefId>,
 
     /// A map of glob use to a set of names it actually imports. Currently only
     /// used in save-analysis.
@@ -1142,7 +1142,7 @@ impl<'tcx> TyCtxt<'tcx> {
             export_map: resolutions.export_map,
             maybe_unused_trait_imports: resolutions.maybe_unused_trait_imports,
             maybe_unused_extern_crates: resolutions.maybe_unused_extern_crates,
-            unique_symbols: resolutions.unique_symbols,
+            exported_unique_symbols: resolutions.unique_symbols,
             glob_map: resolutions.glob_map,
             extern_prelude: resolutions.extern_prelude,
             untracked_crate: krate,

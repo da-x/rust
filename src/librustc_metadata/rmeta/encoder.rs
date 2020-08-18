@@ -7,7 +7,7 @@ use rustc_data_structures::fx::{FxHashMap, FxHashSet, FxIndexSet};
 use rustc_data_structures::stable_hasher::StableHasher;
 use rustc_data_structures::sync::{join, Lrc};
 use rustc_hir as hir;
-use rustc_hir::def::CtorKind;
+use rustc_hir::def::{Namespace, CtorKind};
 use rustc_hir::def_id::{CrateNum, DefId, DefIndex, LocalDefId, CRATE_DEF_INDEX, LOCAL_CRATE};
 use rustc_hir::definitions::DefPathTable;
 use rustc_hir::intravisit::{self, NestedVisitorMap, Visitor};
@@ -516,6 +516,11 @@ impl<'a, 'tcx> EncodeContext<'a, 'tcx> {
         let diagnostic_items = self.encode_diagnostic_items();
         let diagnostic_item_bytes = self.position() - i;
 
+        // Encode the unique symbols.
+        i = self.position();
+        let unique_symbols = self.encode_unique_symbols();
+        let unique_symbol_bytes = self.position() - i;
+
         // Encode the native libraries used
         i = self.position();
         let native_libraries = self.encode_native_libraries();
@@ -638,6 +643,7 @@ impl<'a, 'tcx> EncodeContext<'a, 'tcx> {
             lib_features,
             lang_items,
             diagnostic_items,
+            unique_symbols,
             lang_items_missing,
             native_libraries,
             foreign_modules,
@@ -666,6 +672,7 @@ impl<'a, 'tcx> EncodeContext<'a, 'tcx> {
             println!("     lib feature bytes: {}", lib_feature_bytes);
             println!("       lang item bytes: {}", lang_item_bytes);
             println!(" diagnostic item bytes: {}", diagnostic_item_bytes);
+            println!("  unique symbols bytes: {}", unique_symbol_bytes);
             println!("          native bytes: {}", native_lib_bytes);
             println!("         source_map bytes: {}", source_map_bytes);
             println!("            impl bytes: {}", impl_bytes);
@@ -1539,6 +1546,12 @@ impl EncodeContext<'a, 'tcx> {
         let tcx = self.tcx;
         let diagnostic_items = tcx.diagnostic_items(LOCAL_CRATE);
         self.lazy(diagnostic_items.iter().map(|(&name, def_id)| (name, def_id.index)))
+    }
+
+    fn encode_unique_symbols(&mut self) -> Lazy<[(Namespace, Symbol, DefIndex)]> {
+        let tcx = self.tcx;
+        self.lazy(tcx.exported_unique_symbols.iter().map(|(&(namespace, name), def_id)|
+                (namespace, name, def_id.index)))
     }
 
     fn encode_lang_items(&mut self) -> Lazy<[(DefIndex, usize)]> {

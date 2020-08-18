@@ -14,7 +14,7 @@ use rustc_data_structures::sync::{AtomicCell, Lock, LockGuard, Lrc, OnceCell};
 use rustc_expand::base::{SyntaxExtension, SyntaxExtensionKind};
 use rustc_expand::proc_macro::{AttrProcMacro, BangProcMacro, ProcMacroDerive};
 use rustc_hir as hir;
-use rustc_hir::def::{CtorKind, CtorOf, DefKind, Res};
+use rustc_hir::def::{CtorKind, CtorOf, DefKind, Res, NamespaceSymbol};
 use rustc_hir::def_id::{CrateNum, DefId, DefIndex, CRATE_DEF_INDEX, LOCAL_CRATE};
 use rustc_hir::definitions::DefPathTable;
 use rustc_hir::definitions::{DefKey, DefPath, DefPathData, DefPathHash};
@@ -1025,6 +1025,16 @@ impl<'a, 'tcx> CrateMetadataRef<'a> {
                 .map(|(name, def_index)| (name, self.local_def_id(def_index)))
                 .collect()
         }
+    }
+
+    /// Iterates over the unique symbols in the given crate.
+    fn get_unique_symbols(&self) -> FxHashMap<NamespaceSymbol, DefId> {
+        self.root
+            .unique_symbols
+            .decode(self)
+            .map(|(namespace, name, def_index)|
+                (NamespaceSymbol(namespace, name), self.local_def_id(def_index)))
+            .collect()
     }
 
     /// Iterates over each child of the given item.

@@ -6,7 +6,7 @@ use rustc_attr as attr;
 use rustc_data_structures::svh::Svh;
 use rustc_data_structures::sync::MetadataRef;
 use rustc_hir as hir;
-use rustc_hir::def::CtorKind;
+use rustc_hir::def::{Namespace, CtorKind};
 use rustc_hir::def_id::{DefId, DefIndex};
 use rustc_hir::lang_items;
 use rustc_index::{bit_set::FiniteBitSet, vec::IndexVec};
@@ -193,6 +193,8 @@ crate struct CrateRoot<'tcx> {
     lang_items: Lazy<[(DefIndex, usize)]>,
     lang_items_missing: Lazy<[lang_items::LangItem]>,
     diagnostic_items: Lazy<[(Symbol, DefIndex)]>,
+    unique_symbols: Lazy<[(Namespace, Symbol, DefIndex)]>,
+
     native_libraries: Lazy<[NativeLib]>,
     foreign_modules: Lazy<[ForeignModule]>,
     def_path_table: Lazy<rustc_hir::definitions::DefPathTable>,
